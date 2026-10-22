@@ -5,6 +5,7 @@ import { ALPHABET, nameLetters, tileColor, type Letter } from '../content/letter
 import { lineId, PRAISE_LINES } from '../content/lines';
 import { bounce, fadeTo, finished, flyArc, type Place } from '../core/anim';
 import { letterPool, recordLetterAnswer } from '../core/progress';
+import { gapRange, pickGaps } from '../core/namePlan';
 import { askQuestion } from '../core/question';
 import { shuffle } from '../core/rounds';
 import type { Scene, SceneContext } from '../core/scenes';
@@ -26,10 +27,11 @@ function slots(n: number): { places: { x: number; y: number }[]; size: number } 
 }
 
 /**
- * Name Sign: building his name for his mailbox. At first only the first
- * letter is missing ("Find the letter L!"); as he gets them right, more of his
- * name is left for him to fill in, always from the start. Then Pops reads it
- * back letter by letter: "That spells Lincoln!"
+ * Name Sign: building his name for his mailbox. Three letters are missing at
+ * first, always including the first one ("Find the letter L!"); after a round
+ * with no mistakes there's one more (up to five), and the gaps move around so
+ * over time he places every letter. Then Pops reads it back letter by letter:
+ * "That spells Lincoln!"
  */
 export function namesignScene(): Scene {
   return {
@@ -87,9 +89,10 @@ async function run(
   tiles: SVGGElement,
   layer: SVGGElement,
 ): Promise<void> {
-  ctx.difficulty.startRound(MISSING, 1, name.length);
+  const range = gapRange(name.length);
+  ctx.difficulty.startRound(MISSING, range.min, range.max);
   ctx.difficulty.startRound(CHOICES, 2, 4);
-  const missing = ctx.difficulty.track(MISSING, 1, name.length).value;
+  const gaps = pickGaps(name.length, ctx.difficulty.track(MISSING, range.min, range.max).value);
   ctx.app.audio.preload([
     'name.intro', 'name.firstLetter', 'name.done', 'round.great', 'post.stamp', ...PRAISE_LINES,
     ...name.flatMap((l) => [lineId('letter.find', l), lineId('letter.say', l)]),
@@ -98,7 +101,7 @@ async function run(
   // The letters he doesn't fill in this time are already on the sign.
   const placedTiles: SVGGElement[] = [];
   name.forEach((l, i) => {
-    if (i < missing) return;
+    if (gaps.includes(i)) return;
     const t = tileAt(l, i, places[i]!, size);
     tiles.append(t);
     placedTiles[i] = t;
@@ -107,8 +110,7 @@ async function run(
   await ctx.wait(400);
   await ctx.speak('name.intro');
 
-  let allFirstTry = true;
-  for (let i = 0; i < missing; i++) {
+  for (const i of gaps) {
     const target = name[i]!;
     // A soft ring shows which spot is next.
     const ring = s('rect', {
@@ -135,9 +137,10 @@ async function run(
       pops,
       svg,
     });
-    allFirstTry &&= result.firstTry;
     recordLetterAnswer(ctx.progress, target, result.firstTry);
     ctx.difficulty.record(CHOICES, 2, 4, result.firstTry);
+    // Every letter right on the first try counts toward one more gap next time.
+    ctx.difficulty.record(MISSING, range.min, range.max, result.firstTry);
     ctx.save();
 
     // The tile flies up and clicks into its spot on the sign.
@@ -166,7 +169,5 @@ async function run(
   }
   pops.pose('cheering');
   await ctx.speak('name.done');
-  ctx.difficulty.record(MISSING, 1, name.length, allFirstTry);
-  ctx.save();
   await finishWithStamp(ctx, 'namesign', pops, svg);
 }
