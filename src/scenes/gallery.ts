@@ -1,6 +1,9 @@
 import { Mama, Pops, type PopsPose } from '../art/characters';
 import { cookieArt, crackedEggArt, decoArt, eggArt, fruitPieceArt, muffinArt, muffinTin, oven } from '../art/bakery';
 import { ingredientArt, magnetArt } from '../art/kitchen';
+import { bigMailbox, envelopeArt, letterTileArt, mailTruck, myMailbox, numberHouse, packageArt, postOfficeBuilding, stampArt } from '../art/post';
+import { tileColor } from '../content/letters';
+import type { StickerId } from '../content/stickers';
 import { DECOS, FLAVORS } from '../content/bakery';
 import { addProblem } from '../art/problems';
 import { INGREDIENTS } from '../content/ingredients';
@@ -23,6 +26,24 @@ export function galleryScene(): Scene {
     mount(ctx) {
       const svg = stageSvg();
       svg.append(s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#efe3cf' }));
+      // `?gallery=post`: envelopes, letter tiles, mailboxes, the truck, houses, a package, stamps, the building.
+      if (new URLSearchParams(location.search).get('gallery') === 'post') {
+        const put = (el: SVGGElement, t: string) => {
+          el.setAttribute('transform', t);
+          svg.append(el);
+        };
+        ['L', 'I', 'N', 'C'].forEach((l, i) => put(envelopeArt(l, tileColor(i)), `translate(${10 + i * 130} 0) scale(0.8)`));
+        ['O', 'B', '7'].forEach((l, i) => put(letterTileArt(l, tileColor(i + 4)), `translate(${540 + i * 120} 0) scale(0.75)`));
+        put(bigMailbox(0, 400), 'translate(900 -40) scale(0.7)');
+        put(myMailbox(0, 300), 'translate(1080 20) scale(0.6)');
+        put(mailTruck(), 'translate(20 160) scale(0.55)');
+        [3, 4, 10].forEach((n, i) => put(numberHouse(n, ['#f7d774', '#f7a8cf', '#bfe7f7'][i]!, ['#d9534f', '#3d7fe0', '#3fae5a'][i]!), `translate(${300 + i * 170} 150) scale(0.65)`));
+        put(packageArt(), 'translate(830 200)');
+        ['star', 'rex', 'fireTruck'].forEach((id, i) => put(stampArt(id as StickerId), `translate(${20 + i * 110} 380)`));
+        put(postOfficeBuilding(), 'translate(360 380) scale(0.9)');
+        ctx.root.append(svg);
+        return;
+      }
       // `?gallery=baking`: icing decorations, muffins, a decorated cookie, eggs, fruit, the tin and oven.
       if (new URLSearchParams(location.search).get('gallery') === 'baking') {
         const at = (el: SVGGElement, x: number, y: number, scale = 1) => {

@@ -1,5 +1,6 @@
 import { family } from '../config/family';
 import type { BakeItem } from '../content/bakery';
+import { STARTER_LETTERS, STARTER_NUMBERS, type Letter } from '../content/letters';
 import { STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
 import type { MagnetId } from '../content/magnets';
 import type { StickerId } from '../content/stickers';
@@ -29,7 +30,7 @@ export interface Settings {
   music: boolean;
 }
 
-export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate';
+export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate' | 'letters' | 'namesign' | 'houses';
 
 export interface ToolStat {
   /** Questions that asked for this tool. */
@@ -62,6 +63,13 @@ export interface Progress {
   magnets: MagnetId[];
   /** Muffins and decorated cookies he made, oldest first (the bakery shelf). */
   bakery: BakeItem[];
+  /** Post Office: first-try stats and how many are in play, for letters and house numbers. */
+  letters: Partial<Record<Letter, ToolStat>>;
+  lettersIntroduced: number;
+  numbers: Partial<Record<string, ToolStat>>;
+  numbersIntroduced: number;
+  /** Postage stamps earned (same pictures as the stickers). */
+  stamps: StickerId[];
 }
 
 export interface SessionData {
@@ -91,7 +99,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [] },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [], letters: {}, lettersIntroduced: STARTER_LETTERS, numbers: {}, numbersIntroduced: STARTER_NUMBERS, stamps: [] },
   };
 }
 

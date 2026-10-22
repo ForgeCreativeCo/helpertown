@@ -6,6 +6,7 @@
  *   npm run voices -- --only fetch.        # just ids starting with "fetch."
  *   npm run voices -- --voice <voice id>   # a different ElevenLabs voice
  *   npm run voices -- --list-voices        # ElevenLabs voices this account can use
+ *   npm run voices -- --dry-run            # just count what's missing (and the characters it'd use)
  *   npm run voices -- --engine piper       # free offline Piper (after npm run voices:setup)
  *   npm run voices -- --engine sapi        # Windows' built-in voice
  */
@@ -30,8 +31,9 @@ async function main(): Promise<void> {
   const only = argValue('only');
   const all = voiceJobs().filter((j) => !only || j.id.startsWith(only));
   const todo = hasFlag('force') ? all : all.filter((j) => !existing.has(j.id));
-  console.log(`${all.length} voice files; ${todo.length} to generate with ${engineName}.`);
-  if (todo.length === 0) return;
+  const chars = todo.reduce((n, j) => n + j.text.length, 0);
+  console.log(`${all.length} voice files; ${todo.length} to generate with ${engineName} (${chars} characters).`);
+  if (todo.length === 0 || hasFlag('dry-run')) return;
 
   const tmp = resolve(CACHE_DIR, 'wav');
   rmSync(tmp, { recursive: true, force: true });

@@ -1,6 +1,7 @@
 import { family } from '../config/family';
 import { ADD_COUNTS, DECOS, FLAVORS, NUMBER_WORDS } from './bakery';
 import { INGREDIENTS } from './ingredients';
+import { ALPHABET, NUMBER_NAMES, NUMBERS } from './letters';
 import { MAGNETS } from './magnets';
 import { PROBLEMS } from './problems';
 import { STICKERS } from './stickers';
@@ -21,9 +22,9 @@ import { VEHICLES } from './vehicles';
  */
 export type Speaker = 'pops' | 'mama';
 
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking' | 'post' | 'letters' | 'numbers';
 
-export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco';
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco' | 'letter' | 'number';
 
 export interface LineTemplate {
   id: string;
@@ -146,6 +147,33 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'bakery.muffin', group: 'baking', speaker: 'mama', text: 'A {flavor} muffin!', vars: ['flavor'] },
   { id: 'bakery.cookie', group: 'baking', speaker: 'mama', text: 'A cookie you decorated!' },
 
+  // Post Office (Pops runs it)
+  { id: 'town.postOffice', group: 'town', text: 'The post office!' },
+  { id: 'post.hello', group: 'post', text: "Hi {child}! Let's deliver the mail!", plain: "Hi there! Let's deliver the mail!" },
+  { id: 'post.mailbox', group: 'post', text: 'The big mailbox!' },
+  { id: 'post.yourMailbox', group: 'post', text: 'Your mailbox!' },
+  { id: 'post.truck', group: 'post', text: 'The mail truck!' },
+  { id: 'post.stamp', group: 'post', text: 'A new stamp for your board!' },
+  { id: 'stamp.say', group: 'post', text: '{sticker} stamp!', vars: ['sticker'] },
+  { id: 'nav.post', group: 'post', text: 'Back to the post office!' },
+  // Letter Mail
+  { id: 'letter.intro', group: 'letters', text: "Let's mail some letters!" },
+  { id: 'letter.find', group: 'letters', text: 'Find the letter {letter}!', vars: ['letter'] },
+  { id: 'letter.thatsThe', group: 'letters', text: "That's the letter {letter}!", vars: ['letter'] },
+  { id: 'letter.say', group: 'letters', text: '{letter}!', vars: ['letter'] },
+  { id: 'letter.foundIt', group: 'letters', text: 'You found it!' },
+  { id: 'letter.newOne', group: 'letters', text: 'Here is a new letter!' },
+  // Name Sign
+  { id: 'name.intro', group: 'letters', text: "Let's put your name on your mailbox!" },
+  { id: 'name.firstLetter', group: 'letters', text: "That's the first letter of your name!" },
+  { id: 'name.done', group: 'letters', text: 'That spells {child}!', plain: 'That spells your name!' },
+  // Number Houses
+  { id: 'num.intro', group: 'numbers', text: "Let's deliver packages!" },
+  { id: 'num.ask', group: 'numbers', text: 'This package goes to house {number}!', vars: ['number'] },
+  { id: 'num.thatsHouse', group: 'numbers', text: "That's house {number}!", vars: ['number'] },
+  { id: 'num.delivered', group: 'numbers', text: 'Delivered! Thank you!' },
+  { id: 'num.newOne', group: 'numbers', text: 'A new house on the street!' },
+
   {
     id: 'mama.goodbye',
     group: 'winddown',
@@ -178,6 +206,8 @@ const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   flavor: FLAVORS.map((f) => ({ id: f.id, word: f.word })),
   addition: FLAVORS.flatMap((f) => ADD_COUNTS.map((n) => ({ id: `${f.id}-${n}`, word: `${NUMBER_WORDS[n]} ${f.plural}` }))),
   deco: DECOS.map((d) => ({ id: d.id, word: d.word })),
+  letter: ALPHABET.map((l) => ({ id: l, word: l })),
+  number: NUMBERS.map((n) => ({ id: String(n), word: NUMBER_NAMES[n] })),
 };
 
 export interface Line {

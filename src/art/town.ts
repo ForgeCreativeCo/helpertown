@@ -5,7 +5,8 @@ import { DARK_METAL, INK } from './palette';
  * Helper Town from above-ish: a sunny street with each place he can visit.
  * Only places that exist are drawn (no locked or "coming soon" buildings).
  */
-export function townBackground(): SVGGElement {
+/** The street; `doors` are the x positions of each place's front path. */
+export function townBackground(doors: number[]): SVGGElement {
   const dashes: string[] = [];
   for (let x = -1280; x < 2560; x += 90) dashes.push(`<rect x="${x}" y="636" width="50" height="10" rx="5" fill="#f4f4f4"/>`);
   return fromMarkup(`
@@ -17,8 +18,7 @@ export function townBackground(): SVGGElement {
     <rect x="-1280" y="590" width="3840" height="10" fill="#4a4f57"/>
     <rect x="-1280" y="684" width="3840" height="10" fill="#4a4f57"/>
     ${dashes.join('')}
-    <path d="M300 560 L280 596 H380 L360 560 Z" fill="#c9b79a"/>
-    <path d="M940 560 L920 596 H1000 L980 560 Z" fill="#c9b79a"/>
+    ${doors.map((x) => `<path d="M${x - 30} 560 L${x - 46} 596 H${x + 46} L${x + 30} 560 Z" fill="#c9b79a"/>`).join('')}
   `);
 }
 

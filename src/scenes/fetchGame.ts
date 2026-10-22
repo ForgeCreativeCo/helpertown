@@ -23,9 +23,10 @@ export interface FetchConfig<T extends string> {
   host(): Character;
   row: Row;
   art(id: T): SVGGElement;
-  pool(p: Progress): T[];
+  /** Items in play (the context gives access to settings like his name). */
+  pool(p: Progress, ctx: SceneContext): T[];
   record(p: Progress, id: T, firstTry: boolean): void;
-  introduce(p: Progress): T | null;
+  introduce(p: Progress, ctx: SceneContext): T | null;
   lines: {
     intro: string;
     ask(id: T): string;
@@ -72,7 +73,7 @@ async function runRound<T extends string>(ctx: SceneContext, cfg: FetchConfig<T>
   // Decode this round's likely lines up front so each starts instantly.
   ctx.app.audio.preload([
     cfg.lines.intro,
-    ...cfg.pool(ctx.progress).flatMap((id) => [cfg.lines.ask(id), cfg.lines.found(id), cfg.lines.thatsThe(id)]),
+    ...cfg.pool(ctx.progress, ctx).flatMap((id) => [cfg.lines.ask(id), cfg.lines.found(id), cfg.lines.thatsThe(id)]),
     ...cfg.lines.preload,
   ]);
 
@@ -80,7 +81,7 @@ async function runRound<T extends string>(ctx: SceneContext, cfg: FetchConfig<T>
   await ctx.speak(cfg.lines.intro);
 
   for (let q = 0; q < cfg.questions; q++) {
-    const pool = cfg.pool(ctx.progress);
+    const pool = cfg.pool(ctx.progress, ctx);
     const target = newItem ?? nextTarget(pool, asked);
     asked.push(target);
     const ids = pickChoices(target, pool, ctx.difficulty.choices(cfg.track));
@@ -105,7 +106,7 @@ async function runRound<T extends string>(ctx: SceneContext, cfg: FetchConfig<T>
 
     cfg.record(ctx.progress, target, result.firstTry);
     ctx.difficulty.record(cfg.track, 2, 4, result.firstTry);
-    newItem = cfg.introduce(ctx.progress);
+    newItem = cfg.introduce(ctx.progress, ctx);
     ctx.save();
 
     // The right one flies to the grown-up's hand, gets used, and he's thanked.

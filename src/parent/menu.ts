@@ -6,10 +6,10 @@ import { getTool } from '../content/tools';
 import { VEHICLES } from '../content/vehicles';
 import { blobs } from '../core/db';
 import { forgetPhoto, photoUrl, preparePhoto, type PhotoId } from '../core/photos';
-import { ingredientAccuracy, toolAccuracy } from '../core/progress';
+import { ingredientAccuracy, letterAccuracy, numberAccuracy, toolAccuracy } from '../core/progress';
 import type { App } from '../core/scenes';
 import { playedInLast } from '../core/session';
-import { DIFFICULTIES, localDate, SESSION_MINUTES, type DifficultySetting, type SessionMinutes } from '../core/storage';
+import { DIFFICULTIES, localDate, SESSION_MINUTES, type ActivityId, type DifficultySetting, type SessionMinutes } from '../core/storage';
 import { h, minutes } from './dom';
 import { canRecord, MAX_RECORD_MS, Recorder } from './recorder';
 
@@ -29,6 +29,9 @@ const GROUP_LABELS: Record<LineGroup, string> = {
   town: 'Town map',
   kitchen: 'Mama’s Kitchen',
   baking: 'Baking and cookies',
+  post: 'Post Office',
+  letters: 'Letters and his name',
+  numbers: 'House numbers',
 };
 
 /** The parent menu. Everything here is for grown-ups, so it's plain text and form controls. */
@@ -307,7 +310,7 @@ function voicesSection(app: App, recorder: Recorder): HTMLElement {
 function progressSection(app: App): HTMLElement {
   const p = app.store.progress;
   const now = new Date();
-  const rounds = (id: 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate') => String(p.rounds[id] ?? 0);
+  const rounds = (id: ActivityId) => String(p.rounds[id] ?? 0);
   const collected = VEHICLES.filter((v) => p.garage[v.id]).length;
   return h('div', { class: 'grid' }, [
     h('div', { class: 'card' }, [
@@ -323,11 +326,22 @@ function progressSection(app: App): HTMLElement {
       h('p', { text: `Tool Wall: ${rounds('toolwall')}` }),
       h('p', { text: `Cooking with Mama: ${rounds('cook')}` }),
       h('p', { text: `Baking muffins: ${rounds('bake')} · Decorating cookies: ${rounds('decorate')}` }),
-      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length} · Bakery shelf: ${p.bakery.length}` }),
+      h('p', { text: `Letter mail: ${rounds('letters')} · Name sign: ${rounds('namesign')} · Number houses: ${rounds('houses')}` }),
+      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length} · Bakery shelf: ${p.bakery.length} · Stamps: ${p.stamps.length}` }),
     ]),
     accuracyTable(
       'Which tools he knows',
       toolAccuracy(p).map((r) => ({ name: getTool(r.id).name, asked: r.asked, accuracy: r.accuracy })),
+    ),
+    accuracyTable(
+      'Which letters he knows (in the order they come up)',
+      letterAccuracy(p, app.store.settings.childName)
+        .filter((r) => r.asked > 0)
+        .map((r) => ({ name: r.id, asked: r.asked, accuracy: r.accuracy })),
+    ),
+    accuracyTable(
+      'Which house numbers he knows',
+      numberAccuracy(p).map((r) => ({ name: r.id, asked: r.asked, accuracy: r.accuracy })),
     ),
     accuracyTable(
       'Which ingredients he knows',

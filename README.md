@@ -1,15 +1,16 @@
 # Helper Town
 
-A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop and cooking with Mama in her kitchen. They ask, he helps, and they're proud of him.
+A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop, cooking with Mama in her kitchen, and delivering the mail with Pops at the post office. They ask, he helps, and they're proud of him.
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** Phase 2 started. The **Town Map** is the home screen with two places:
+**Status:** The **Town Map** is the home screen with three places:
 
 - **Pops' Workshop** (Phase 1, complete): Fetch the Tool, Fix It, Tool Wall, My Garage.
 - **Mama's Kitchen** (complete): Fetch the Ingredient, Bake Together, Decorate Cookies, and the Bakery Shelf.
+- **Post Office** (new): Letter Mail, Name Sign and Number Houses, with Pops delivering the mail.
 
-Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. Next: a **Post Office** for letters and numbers.
+Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. It's live at https://lincolnshelpertown.netlify.app (every push to `main` deploys).
 
 ## Running locally
 
@@ -42,7 +43,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen` and `?gallery=baking` show the vehicles, Pops and Mama, the ingredients and magnets, and the baking art.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen`, `?gallery=baking` and `?gallery=post` show the vehicles, Pops and Mama, the ingredients and magnets, the baking art and the post office art.
 - Add `?fps` to the URL (works on the deployed site too) for a small frames-per-second meter with the slowest frame in the last second. On the tablet it should stay near 60 fps, with no frames slower than about 50 ms.
 - Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
@@ -73,6 +74,7 @@ src/
   config/family.ts      child and grandpa names
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
   scenes/               start, town (Town Map), hub (Pops' Workshop), fetch, fixit, toolwall,
+                        post (Post Office), letters, namesign, houses,
                         garage, kitchen (Mama's Kitchen), cook (Fetch the Ingredient),
                         bake, decorate, bakery, fetchGame (the shared "fetch" game), rest, gallery (dev only)
 scripts/
@@ -86,7 +88,7 @@ tests/                  Vitest
 
 ### Toddler rules the code enforces
 
-- **No reading:** every instruction is spoken. The only words on child screens are his initial on license plates. In the coming letters-and-numbers games, letters and numerals will appear as things to tap (agreed as a change to the original rule), but instructions stay spoken.
+- **No reading needed:** every instruction is spoken. The only text on child screens is his initial on license plates and, in the Post Office, the letters and numbers he's learning, shown as things to tap (agreed as a change to the original rule). Instructions are never text.
 
 - **Input** (`core/input.ts`, `core/tapGate.ts`): responds on pointerdown. Touches that land within 80 ms of another touch (a palm or several fingers), report a large contact area, or start in the outer 40 px of the screen are ignored. A resting palm does not block real taps. Repeat taps on the same thing within 400 ms are ignored, and nothing responds during scene transitions.
 - **Scenes** (`core/scenes.ts`): each scene's taps, timers, waits and looping animations are cleaned up automatically when it leaves, and its pending async steps simply stop. Mashing during a transition is ignored, so nothing can be skipped or double-launched.
@@ -104,6 +106,16 @@ tests/                  Vitest
 ### Town Map
 
 The home screen after the start button: a sunny street with Pops' Workshop and Mama's house (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "Mama's kitchen!") and zooms in. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
+
+### Post Office
+
+Pops is delivering the mail (in Bill's voice). The big blue **mailbox**, Lincoln's own red **mailbox** and the **mail truck** in the window each open a game, and his stamps go on the board.
+
+- **Letter Mail:** "Find the letter L!" He finds the envelope with that letter on the sorting table and Pops posts it in the mailbox ("L!"). It's the same engine as Fetch the Tool: errorless, 2–4 choices, adaptive. It starts with the letters of his name (L, I, N, then C, O) and adds the rest of the alphabet one at a time as he learns them. Each letter always has the same color.
+- **Name Sign:** building his name for his mailbox. At first only the first letter is missing ("Find the letter L!", then "That's the first letter of your name!"). As he gets them right, more of his name is left for him to fill in, always from the start. Then Pops reads it back letter by letter: "That spells Lincoln!" After his first time, his name appears on his red mailbox in the post office. It uses the child's name from settings, so it adapts if the name changes.
+- **Number Houses:** "This package goes to house three!" He taps the house with that number (houses on the street are in number order), the mail truck drives over and the package hops to the door, *ding-dong*. Houses 1–3 at first, growing to 10.
+- **Reward:** each round earns a postage stamp for the board; tap a stamp to hear it.
+- **Parent menu:** shows which letters and house numbers he knows (first-try accuracy).
 
 ### Mama's Kitchen
 
@@ -196,7 +208,7 @@ npm run voices
 - It generates only files that don't exist yet, in the same voice, so new lines match the old ones. It makes every line's name-free version, plus named versions for `childName` and both grandpa names in `src/config/family.ts`.
 - `npm run voices -- --force` regenerates everything. `-- --only fetch.` limits it to ids starting with `fetch.`.
 - The engine and voice defaults are in `scripts/voices/config.ts` (`DEFAULT_ENGINE`, `DEFAULT_ELEVEN_VOICES`). The script uses the official `@elevenlabs/elevenlabs-js` SDK (a dev dependency; it's never in the game).
-- The whole script is a couple of thousand characters, which fits the free tier. Check ElevenLabs' terms for free-tier use.
+- **Budget:** the free tier is 10,000 characters a month. `npm run voices -- --dry-run` shows how many characters the missing lines would use before spending anything. The whole game so far is about 8,600 characters.
 
 ### ElevenLabs key
 

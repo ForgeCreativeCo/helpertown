@@ -1,4 +1,5 @@
 import { INGREDIENTS, STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
+import { letterOrder, NUMBERS, STARTER_LETTERS, STARTER_NUMBERS, type Letter } from '../content/letters';
 import { MAGNETS, type MagnetId } from '../content/magnets';
 import { STICKERS, type StickerId } from '../content/stickers';
 import { STARTER_TOOLS, TOOLS, type ToolId } from '../content/tools';
@@ -17,6 +18,7 @@ const KNOWN_AFTER = 2;
  * adding the next once he knows every one in play.
  */
 interface ItemSet<T extends string> {
+  /** In introduction order. */
   ids: readonly T[];
   starter: number;
   stats(p: Progress): Partial<Record<T, ToolStat>>;
@@ -86,6 +88,40 @@ export const knowsTool = (p: Progress, tool: ToolId) => knows(TOOL_SET, p, tool)
 export const maybeIntroduceTool = (p: Progress) => maybeIntroduce(TOOL_SET, p);
 /** First-try accuracy per tool (0..1), for the parent menu. */
 export const toolAccuracy = (p: Progress) => accuracy(TOOL_SET, p);
+
+// Letters and house numbers (Post Office). Letters start with the ones in his name.
+function letterSet(name: string): ItemSet<Letter> {
+  return {
+    ids: letterOrder(name),
+    starter: STARTER_LETTERS,
+    stats: (p) => p.letters,
+    introduced: (p) => p.lettersIntroduced,
+    setIntroduced: (p, n) => (p.lettersIntroduced = n),
+  };
+}
+const NUMBER_SET: ItemSet<string> = {
+  ids: NUMBERS.map(String),
+  starter: STARTER_NUMBERS,
+  stats: (p) => p.numbers,
+  introduced: (p) => p.numbersIntroduced,
+  setIntroduced: (p, n) => (p.numbersIntroduced = n),
+};
+export const letterPool = (p: Progress, name: string) => pool(letterSet(name), p);
+export const recordLetterAnswer = (p: Progress, l: Letter, firstTry: boolean) => recordAnswer(letterSet(''), p, l, firstTry);
+export const maybeIntroduceLetter = (p: Progress, name: string) => maybeIntroduce(letterSet(name), p);
+export const letterAccuracy = (p: Progress, name: string) => accuracy(letterSet(name), p);
+/** House numbers in play, as strings ('1'..'10'). */
+export const numberPool = (p: Progress) => pool(NUMBER_SET, p);
+export const recordNumberAnswer = (p: Progress, n: string, firstTry: boolean) => recordAnswer(NUMBER_SET, p, n, firstTry);
+export const maybeIntroduceNumber = (p: Progress) => maybeIntroduce(NUMBER_SET, p);
+export const numberAccuracy = (p: Progress) => accuracy(NUMBER_SET, p);
+
+/** A postage stamp for the post office board (same pictures as the stickers). */
+export function awardStamp(p: Progress): StickerId {
+  const id = STICKERS[(p.stamps.length + 3) % STICKERS.length]!.id;
+  p.stamps.push(id);
+  return id;
+}
 
 // Ingredients (Mama's Kitchen)
 export const recordIngredientAnswer = (p: Progress, id: IngredientId, firstTry: boolean) => recordAnswer(INGREDIENT_SET, p, id, firstTry);
