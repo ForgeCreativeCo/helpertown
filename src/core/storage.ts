@@ -1,4 +1,5 @@
 import { family } from '../config/family';
+import type { BakeItem } from '../content/bakery';
 import { STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
 import type { MagnetId } from '../content/magnets';
 import type { StickerId } from '../content/stickers';
@@ -28,7 +29,7 @@ export interface Settings {
   music: boolean;
 }
 
-export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook';
+export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate';
 
 export interface ToolStat {
   /** Questions that asked for this tool. */
@@ -59,6 +60,8 @@ export interface Progress {
   ingredients: Partial<Record<IngredientId, ToolStat>>;
   ingredientsIntroduced: number;
   magnets: MagnetId[];
+  /** Muffins and decorated cookies he made, oldest first (the bakery shelf). */
+  bakery: BakeItem[];
 }
 
 export interface SessionData {
@@ -88,7 +91,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [] },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [] },
   };
 }
 

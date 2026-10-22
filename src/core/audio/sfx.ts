@@ -22,7 +22,8 @@ export type SfxName =
   | 'vroom'
   | 'crack'
   | 'plop'
-  | 'pour';
+  | 'pour'
+  | 'ding';
 
 type Env = { attack?: number; hold?: number; release: number; peak: number };
 
@@ -182,6 +183,12 @@ const SOUNDS: Record<SfxName, (s: Sfx, ctx: AudioContext, out: AudioNode, t: num
   },
   plop: (_s, ctx, out, t) => tone(ctx, out, t, 'sine', 520, 160, { release: 0.14, peak: 0.4 }),
   pour: (s, ctx, out, t) => noise(s, ctx, out, t, 'bandpass', 700, 1100, { attack: 0.06, hold: 0.35, release: 0.2, peak: 0.25 }),
+  // The oven timer: a soft little bell, rung twice.
+  ding: (_s, ctx, out, t) => {
+    tone(ctx, out, t, 'sine', 1568, 1568, { release: 0.9, peak: 0.22 });
+    tone(ctx, out, t, 'sine', 3136, 3136, { release: 0.5, peak: 0.06 });
+    tone(ctx, out, t + 0.35, 'sine', 1568, 1568, { release: 0.9, peak: 0.18 });
+  },
   fanfare: (_s, ctx, out, t) => {
     [0, 4, 7, 12].forEach((n, i) =>
       tone(ctx, out, t + i * 0.12, 'triangle', NOTE(n), NOTE(n), { hold: i === 3 ? 0.25 : 0.05, release: 0.2, peak: 0.22 }),

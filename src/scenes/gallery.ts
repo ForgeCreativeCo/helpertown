@@ -1,5 +1,7 @@
 import { Mama, Pops, type PopsPose } from '../art/characters';
+import { cookieArt, crackedEggArt, decoArt, eggArt, fruitPieceArt, muffinArt, muffinTin, oven } from '../art/bakery';
 import { ingredientArt, magnetArt } from '../art/kitchen';
+import { DECOS, FLAVORS } from '../content/bakery';
 import { addProblem } from '../art/problems';
 import { INGREDIENTS } from '../content/ingredients';
 import { MAGNETS } from '../content/magnets';
@@ -21,6 +23,32 @@ export function galleryScene(): Scene {
     mount(ctx) {
       const svg = stageSvg();
       svg.append(s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#efe3cf' }));
+      // `?gallery=baking`: icing decorations, muffins, a decorated cookie, eggs, fruit, the tin and oven.
+      if (new URLSearchParams(location.search).get('gallery') === 'baking') {
+        const at = (el: SVGGElement, x: number, y: number, scale = 1) => {
+          const g = s('g', {}, [el]);
+          placeAt(g, { x, y, scale }, { x: 50, y: 50 });
+          svg.append(g);
+        };
+        DECOS.forEach((d, i) => at(decoArt(d.id), 70 + (i % 6) * 110, 70 + Math.floor(i / 6) * 110));
+        FLAVORS.forEach((f, i) => {
+          at(muffinArt(f.id), 70 + i * 110, 320);
+          at(fruitPieceArt(f.id), 420 + i * 100, 320, 0.8);
+        });
+        at(cookieArt(['red-heart', 'blue-star', 'yellow-circle']), 760, 320, 1.4);
+        at(eggArt(), 900, 320);
+        at(crackedEggArt(), 1010, 320);
+        const tin = muffinTin('blueberry', false);
+        tin.setAttribute('transform', 'translate(60 440)');
+        const baked = muffinTin('strawberry', true);
+        baked.setAttribute('transform', 'translate(320 440)');
+        const ov = oven();
+        ov.glow.setAttribute('opacity', '0.8');
+        ov.oven.setAttribute('transform', 'translate(-200 160) scale(0.8)');
+        svg.append(tin, baked, ov.oven);
+        ctx.root.append(svg);
+        return;
+      }
       // `?gallery=kitchen`: every ingredient (top) and fridge magnet (bottom).
       if (new URLSearchParams(location.search).get('gallery') === 'kitchen') {
         INGREDIENTS.forEach((ing, i) => {

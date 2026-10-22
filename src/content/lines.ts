@@ -1,4 +1,5 @@
 import { family } from '../config/family';
+import { ADD_COUNTS, DECOS, FLAVORS, NUMBER_WORDS } from './bakery';
 import { INGREDIENTS } from './ingredients';
 import { MAGNETS } from './magnets';
 import { PROBLEMS } from './problems';
@@ -20,9 +21,9 @@ import { VEHICLES } from './vehicles';
  */
 export type Speaker = 'pops' | 'mama';
 
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking';
 
-export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet';
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco';
 
 export interface LineTemplate {
   id: string;
@@ -111,6 +112,40 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'mama.magnet', group: 'kitchen', speaker: 'mama', text: 'A new magnet for the fridge!' },
   { id: 'magnet.say', group: 'kitchen', speaker: 'mama', text: '{magnet}!', vars: ['magnet'] },
   { id: 'mama.stillThere', group: 'kitchen', speaker: 'mama', text: 'Are you still there, sweetie?' },
+  { id: 'mama.count', group: 'kitchen', speaker: 'mama', text: '{count}!', vars: ['count'] },
+  { id: 'kitchen.bowl', group: 'kitchen', speaker: 'mama', text: 'The mixing bowl!' },
+  { id: 'kitchen.cookies', group: 'kitchen', speaker: 'mama', text: 'The cookies!' },
+  { id: 'kitchen.shelf', group: 'kitchen', speaker: 'mama', text: 'The bakery shelf!' },
+  { id: 'nav.kitchen', group: 'kitchen', speaker: 'mama', text: 'Back to the kitchen!' },
+
+  // Bake Together
+  { id: 'bake.intro', group: 'baking', speaker: 'mama', text: "Let's bake muffins!" },
+  { id: 'bake.eggs', group: 'baking', speaker: 'mama', text: 'Crack the eggs! Tap an egg!' },
+  { id: 'bake.otherEgg', group: 'baking', speaker: 'mama', text: 'Now the other egg!' },
+  { id: 'bake.flour', group: 'baking', speaker: 'mama', text: 'Pour in the flour!' },
+  { id: 'bake.milk', group: 'baking', speaker: 'mama', text: 'Now pour the milk!' },
+  { id: 'bake.stir', group: 'baking', speaker: 'mama', text: 'Stir it up! Tap the bowl!' },
+  { id: 'bake.add', group: 'baking', speaker: 'mama', text: 'Add {addition}!', vars: ['addition'] },
+  { id: 'bake.tin', group: 'baking', speaker: 'mama', text: 'Into the muffin tin!' },
+  { id: 'bake.oven', group: 'baking', speaker: 'mama', text: 'Tap the oven to turn it on!' },
+  { id: 'bake.wait', group: 'baking', speaker: 'mama', text: "Let's wait for them to bake!" },
+  { id: 'bake.ding', group: 'baking', speaker: 'mama', text: 'Ding! The muffins are ready!' },
+  { id: 'bake.done', group: 'baking', speaker: 'mama', text: 'You made {flavor} muffins!', vars: ['flavor'] },
+  { id: 'bake.shelf', group: 'baking', speaker: 'mama', text: 'They go on the bakery shelf!' },
+
+  // Decorate Cookies
+  { id: 'deco.intro', group: 'baking', speaker: 'mama', text: "Let's decorate a cookie!" },
+  { id: 'deco.ask', group: 'baking', speaker: 'mama', text: 'Put a {deco} on the cookie!', vars: ['deco'] },
+  { id: 'deco.thatsA', group: 'baking', speaker: 'mama', text: "That's a {deco}!", vars: ['deco'] },
+  { id: 'deco.done', group: 'baking', speaker: 'mama', text: 'What a beautiful cookie!' },
+  { id: 'deco.shelf', group: 'baking', speaker: 'mama', text: 'It goes on the bakery shelf!' },
+
+  // Bakery Shelf
+  { id: 'bakery.hello', group: 'baking', speaker: 'mama', text: 'Look at everything you made!' },
+  { id: 'bakery.empty', group: 'baking', speaker: 'mama', text: "Let's bake something yummy!" },
+  { id: 'bakery.muffin', group: 'baking', speaker: 'mama', text: 'A {flavor} muffin!', vars: ['flavor'] },
+  { id: 'bakery.cookie', group: 'baking', speaker: 'mama', text: 'A cookie you decorated!' },
+
   {
     id: 'mama.goodbye',
     group: 'winddown',
@@ -140,6 +175,9 @@ const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   count: ['One', 'Two', 'Three', 'Four', 'Five'].map((word, i) => ({ id: String(i + 1), word })),
   ingredient: INGREDIENTS.map((i) => ({ id: i.id, word: i.name })),
   magnet: MAGNETS.map((m) => ({ id: m.id, word: m.phrase })),
+  flavor: FLAVORS.map((f) => ({ id: f.id, word: f.word })),
+  addition: FLAVORS.flatMap((f) => ADD_COUNTS.map((n) => ({ id: `${f.id}-${n}`, word: `${NUMBER_WORDS[n]} ${f.plural}` }))),
+  deco: DECOS.map((d) => ({ id: d.id, word: d.word })),
 };
 
 export interface Line {

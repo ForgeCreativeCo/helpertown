@@ -28,6 +28,7 @@ const GROUP_LABELS: Record<LineGroup, string> = {
   winddown: 'Goodbye',
   town: 'Town map',
   kitchen: 'Mama’s Kitchen',
+  baking: 'Baking and cookies',
 };
 
 /** The parent menu. Everything here is for grown-ups, so it's plain text and form controls. */
@@ -306,7 +307,7 @@ function voicesSection(app: App, recorder: Recorder): HTMLElement {
 function progressSection(app: App): HTMLElement {
   const p = app.store.progress;
   const now = new Date();
-  const rounds = (id: 'fetch' | 'fixit' | 'toolwall' | 'cook') => String(p.rounds[id] ?? 0);
+  const rounds = (id: 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate') => String(p.rounds[id] ?? 0);
   const collected = VEHICLES.filter((v) => p.garage[v.id]).length;
   return h('div', { class: 'grid' }, [
     h('div', { class: 'card' }, [
@@ -321,7 +322,8 @@ function progressSection(app: App): HTMLElement {
       h('p', { text: `Fix It: ${rounds('fixit')}` }),
       h('p', { text: `Tool Wall: ${rounds('toolwall')}` }),
       h('p', { text: `Cooking with Mama: ${rounds('cook')}` }),
-      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length}` }),
+      h('p', { text: `Baking muffins: ${rounds('bake')} · Decorating cookies: ${rounds('decorate')}` }),
+      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length} · Bakery shelf: ${p.bakery.length}` }),
     ]),
     accuracyTable(
       'Which tools he knows',

@@ -40,10 +40,6 @@ export function kitchenBack(): SVGGElement {
     <rect x="-1280" y="-800" width="3840" height="1400" fill="${WALL}"/>
     ${tiles(380, 520)}
     <rect x="-1280" y="-800" width="3840" height="110" fill="#b5ddd0"/>
-    <!-- Upper cabinets -->
-    <rect x="170" y="60" width="250" height="180" rx="12" fill="${CABINET}" ${O}/>
-    <path d="M295 64 V236" stroke="${INK}" stroke-width="6"/>
-    <circle cx="282" cy="200" r="7" fill="#f2b33d" stroke="${INK}" stroke-width="3"/><circle cx="308" cy="200" r="7" fill="#f2b33d" stroke="${INK}" stroke-width="3"/>
     ${kitchenWindow()}
     <!-- A little plant on the sill -->
     <rect x="590" y="262" width="34" height="28" rx="6" fill="#d9534f" ${O5}/>
@@ -106,16 +102,7 @@ export function teapot(): { pot: SVGGElement; steam: SVGGElement[] } {
   return { pot, steam };
 }
 
-/** A bowl of fruit on the counter (decoration). */
-export function fruitBowl(): SVGGElement {
-  return fromMarkup(`
-    <circle cx="96" cy="488" r="24" fill="#e4473b" ${O5}/>
-    <circle cx="142" cy="482" r="24" fill="#7cc46b" ${O5}/>
-    <path d="M150 498 Q190 470 222 486 Q190 488 168 506 Z" fill="#f5d33d" ${O5}/>
-    <path d="M64 498 H244 Q236 530 200 530 H108 Q72 530 64 498 Z" fill="#fff8e8" ${O}/>`);
-}
-
-/** The mixing bowl next to Mama in the cooking scene. */
+/** A mixing bowl centered on (cx, cy): cooking, baking, and the hub counter. */
 export function mixingBowl(cx: number, cy: number): SVGGElement {
   return fromMarkup(`
     <path d="M${cx - 92} ${cy - 30} H${cx + 92} Q${cx + 84} ${cy + 40} ${cx} ${cy + 44} Q${cx - 84} ${cy + 40} ${cx - 92} ${cy - 30} Z" fill="#7fb4ef" ${O}/>

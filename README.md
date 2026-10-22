@@ -7,9 +7,9 @@ Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ad
 **Status:** Phase 2 started. The **Town Map** is the home screen with two places:
 
 - **Pops' Workshop** (Phase 1, complete): Fetch the Tool, Fix It, Tool Wall, My Garage.
-- **Mama's Kitchen** (new): Fetch the Ingredient, with fridge magnets as rewards. Baking together and decorating cookies come next.
+- **Mama's Kitchen** (complete): Fetch the Ingredient, Bake Together, Decorate Cookies, and the Bakery Shelf.
 
-Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. Still to come: the rest of the kitchen, a **Post Office** for letters and numbers, and the offline checks and Netlify deploy (M5).
+Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. Next: a **Post Office** for letters and numbers.
 
 ## Running locally
 
@@ -42,7 +42,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people` and `?gallery=kitchen` show the vehicles, Pops and Mama, and the ingredients and magnets.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen` and `?gallery=baking` show the vehicles, Pops and Mama, the ingredients and magnets, and the baking art.
 - Add `?fps` to the URL (works on the deployed site too) for a small frames-per-second meter with the slowest frame in the last second. On the tablet it should stay near 60 fps, with no frames slower than about 50 ms.
 - Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
@@ -74,7 +74,7 @@ src/
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
   scenes/               start, town (Town Map), hub (Pops' Workshop), fetch, fixit, toolwall,
                         garage, kitchen (Mama's Kitchen), cook (Fetch the Ingredient),
-                        fetchGame (the shared "fetch" game), rest, gallery (dev only)
+                        bake, decorate, bakery, fetchGame (the shared "fetch" game), rest, gallery (dev only)
 scripts/
   vite-asset-manifest.ts  lists the bundled voice files and photos at build time
   voices/                 voice generation (setup, engines, mp3 encoding)
@@ -107,13 +107,17 @@ The home screen after the start button: a sunny street with Pops' Workshop and M
 
 ### Mama's Kitchen
 
-Mama (an original cartoon mom with her hair in a bun and a heart on her apron) is at the counter. Tap the **fridge** to cook with her:
+Mama (an original cartoon mom with her hair in a bun and a heart on her apron) is at the counter. Four things to tap, each opening a game or his collection:
 
 - **Fetch the Ingredient:** "Mama needs the eggs!" He finds it on the counter among 2–4 choices. It uses the same errorless help and adaptive difficulty as Fetch the Tool (it's the same engine). Mama tips it into her mixing bowl with its own sound. It starts with eggs, banana and milk, then adds strawberries, flour, butter, blueberries and sugar one at a time as he learns them.
 - **Reward:** each round earns a fridge magnet (strawberry, cupcake, heart, banana, star, carrot, flower, apple). Magnets go on the fridge door; tap one to hear it.
 - **Wind-down:** if the session ends here, Mama yawns and waves and the window shade comes down.
 
-Coming next in the kitchen: baking together (crack, pour, stir while Mama counts, into the oven) and decorating cookies (colors and shapes).
+- **Bake Together** (the mixing bowl): muffins, a different flavor each time (blueberry, banana, strawberry). Each step is one big glowing thing to tap, so it can't go wrong. Crack two eggs, pour the flour and the milk, stir while Mama counts (2–5 taps, adjusting like Fix It), then count fruit in ("Add three blueberries!", 2–4 pieces). Mama pours it into the tin, he taps the oven to turn it on (Mama handles the hot part), it glows, *ding*, and out come muffins.
+- **Decorate Cookies** (the cookie tray): "Put a red heart on the cookie!" He picks from icing on a tray (2–4 choices, errorless and adaptive). There are 12 decorations (red, blue, yellow and green × heart, star and circle), so it teaches colors and shapes. Three decorations finish a cookie.
+- **Bakery Shelf** (the shelf on the wall): the muffins and cookies he made, newest first, big enough to tap ("A blueberry muffin!", "A cookie you decorated!"). The newest six also sit on the shelf in the kitchen. Like his garage, but it keeps filling up.
+
+The teapot now lives on top of the fridge.
 
 ### Fix It
 
