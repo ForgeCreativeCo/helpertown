@@ -12,6 +12,11 @@ function memoryKV(initial?: string) {
 }
 
 describe('migrate', () => {
+  it('turns background music on once for version 2 saves', () => {
+    expect(migrate({ version: 2, settings: { childName: 'Sam', music: false } }).settings.music).toBe(true);
+    expect(migrate({ version: SAVE_VERSION, settings: { childName: 'Sam', music: false } }).settings.music).toBe(false);
+  });
+
   it('returns defaults for missing or broken data', () => {
     expect(migrate(null)).toEqual(defaultSave());
     expect(migrate('nope')).toEqual(defaultSave());

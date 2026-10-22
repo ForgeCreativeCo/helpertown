@@ -11,7 +11,7 @@ import type { Track } from './difficulty';
 
 /** Settings and progress, kept in localStorage as one versioned record. */
 export const STORAGE_KEY = 'helper-town';
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export type DifficultySetting = 'auto' | 2 | 3 | 4;
 export type SessionMinutes = 0 | 10 | 15 | 20 | 30;
@@ -102,7 +102,7 @@ export function defaultSave(): SaveData {
       sessionMinutes: 15,
       voiceVolume: 1,
       sfxVolume: 0.55,
-      music: false,
+      music: true,
     },
     progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [], letters: {}, lettersIntroduced: STARTER_LETTERS, numbers: {}, numbersIntroduced: STARTER_NUMBERS, stamps: [], badges: [], fossils: [] },
   };
@@ -118,6 +118,12 @@ export const MIGRATIONS: Record<number, (data: AnyRecord) => AnyRecord> = {
   1: (data) => {
     const settings = isObject(data.settings) ? data.settings : {};
     return settings.childName === '' ? { ...data, settings: { ...settings, childName: family.childName } } : data;
+  },
+  // Background music became a real track and is on by default. Older saves had it off
+  // only because that was the old default, so turn it on once; the parent menu still decides after.
+  2: (data) => {
+    const settings = isObject(data.settings) ? data.settings : {};
+    return { ...data, settings: { ...settings, music: true } };
   },
 };
 
