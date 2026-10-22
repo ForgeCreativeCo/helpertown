@@ -5,7 +5,16 @@ export const CACHE_DIR = join('scripts', 'voices', '.cache');
 export const OUT_DIR = join('public', 'audio', 'generated');
 
 /**
- * Piper voice to use. Audition others at https://rhasspy.github.io/piper-samples/
+ * The engine and voice the bundled files were made with. Regenerating with the
+ * same ones keeps every line in one voice. Override with --engine / --voice,
+ * or VOICE_ENGINE / ELEVENLABS_VOICE_ID in .env.local.
+ */
+export const DEFAULT_ENGINE = 'elevenlabs';
+/** ElevenLabs "Bill": a wise, mature, older American male voice. */
+export const DEFAULT_ELEVEN_VOICE = 'pqHfZKP75CvOlQylNhV4';
+
+/**
+ * Piper voice to use (the free offline fallback: `--engine piper`). Audition others at https://rhasspy.github.io/piper-samples/
  * and pass `--voice <name>` (to both setup and generate) to switch.
  */
 export const DEFAULT_PIPER_VOICE = 'en_US-ryan-high';

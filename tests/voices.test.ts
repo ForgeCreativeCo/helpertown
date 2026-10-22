@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { getLine } from '../src/content/lines';
 import { encodeMp3, normalize, readWav, trimSilence } from '../scripts/voices/encode';
+import { pcmToWav } from '../scripts/voices/engines';
 import { voiceJobs } from '../scripts/voices/jobs';
 
 describe('voiceJobs', () => {
@@ -65,6 +66,16 @@ describe('voice encoding', () => {
     const out = trimSilence(s, 22050, 0.01, 10);
     expect(out.length).toBeGreaterThan(1000);
     expect(out.length).toBeLessThan(1500);
+  });
+
+  it('wraps raw PCM (ElevenLabs output) as a readable WAV', () => {
+    const pcm = Buffer.alloc(4);
+    pcm.writeInt16LE(16384, 0);
+    pcm.writeInt16LE(-16384, 2);
+    const { samples, sampleRate } = readWav(pcmToWav(pcm, 22050));
+    expect(sampleRate).toBe(22050);
+    expect(samples[0]).toBeCloseTo(0.5, 3);
+    expect(samples[1]).toBeCloseTo(-0.5, 3);
   });
 
   it('normalizes the peak', () => {

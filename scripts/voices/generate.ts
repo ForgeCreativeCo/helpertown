@@ -1,24 +1,30 @@
 /**
  * Generates every voice line into public/audio/generated as small mono mp3s.
  *
- *   npm run voices                         # Piper, skipping files that already exist
+ *   npm run voices                         # ElevenLabs "Bill", skipping files that already exist
  *   npm run voices -- --force              # regenerate everything
  *   npm run voices -- --only fetch.        # just ids starting with "fetch."
- *   npm run voices -- --engine sapi        # Windows' built-in voice instead
- *   npm run voices -- --voice en_US-joe-medium
+ *   npm run voices -- --voice <voice id>   # a different ElevenLabs voice
+ *   npm run voices -- --list-voices        # ElevenLabs voices this account can use
+ *   npm run voices -- --engine piper       # free offline Piper (after npm run voices:setup)
+ *   npm run voices -- --engine sapi        # Windows' built-in voice
  */
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { argValue, CACHE_DIR, DEFAULT_PIPER_VOICE, hasFlag, OUT_DIR } from './config.ts';
+import { argValue, CACHE_DIR, DEFAULT_ENGINE, hasFlag, OUT_DIR } from './config.ts';
 import { wavToMp3 } from './encode.ts';
-import { ENGINES } from './engines.ts';
+import { ENGINES, listElevenVoices } from './engines.ts';
 import { voiceJobs } from './jobs.ts';
 
 async function main(): Promise<void> {
-  const engineName = argValue('engine') ?? 'piper';
+  // Secrets and engine choice live in .env.local, which git ignores.
+  if (existsSync('.env.local')) process.loadEnvFile('.env.local');
+  if (hasFlag('list-voices')) return listElevenVoices();
+
+  const engineName = argValue('engine') || process.env.VOICE_ENGINE || DEFAULT_ENGINE;
   const makeEngine = ENGINES[engineName];
   if (!makeEngine) throw new Error(`Unknown engine "${engineName}". Try: ${Object.keys(ENGINES).join(', ')}`);
-  const engine = makeEngine(argValue('voice') ?? DEFAULT_PIPER_VOICE);
+  const engine = makeEngine(argValue('voice'));
   engine.check();
 
   mkdirSync(OUT_DIR, { recursive: true });

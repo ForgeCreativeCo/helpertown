@@ -27,7 +27,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 | `npm run build` | Production build to `dist/` |
 | `npm run preview` | Serves `dist/` (with the service worker) on your network |
 | `npm run check` | Typecheck, lint, tests and build in one go |
-| `npm run voices:setup` | One-time download of the Piper voice engine and voice |
+| `npm run voices:setup` | One-time download of Piper, the free offline voice engine (optional) |
 | `npm run voices` | Generate any missing voice files |
 
 ### Testing on the Fire tablet
@@ -116,19 +116,43 @@ Put `pops.jpg` and/or `child.jpg` (or `.png`/`.webp`) in `public/family/`, then 
 
 ## Generating voices
 
-Voice files are made offline with [Piper](https://github.com/rhasspy/piper), a local neural text-to-speech engine, and saved as small mono mp3s in `public/audio/generated/`. They're committed to the repo, so you only need this when lines or names change.
+The voice lines are generated with [ElevenLabs](https://elevenlabs.io) text to speech, voice **"Bill"** (a wise, older American man), model `eleven_v4`. They're saved as small mono mp3s in `public/audio/generated/` and committed to the repo, so you only need this when lines or names change. ElevenLabs is only used while generating files: the game plays the bundled mp3s and never contacts it.
 
 ```bash
-npm run voices:setup
 npm run voices
 ```
 
-- `voices:setup` downloads the Piper engine (from its GitHub release) and the default voice, `en_US-ryan-high` (from Hugging Face), into `scripts/voices/.cache/` (git-ignored, ~140 MB). It runs on Windows, macOS and Linux.
-- `voices` generates only files that don't exist yet. It makes every line's name-free version, plus named versions for `childName` and both grandpa names in `src/config/family.ts`.
-- `npm run voices -- --force` regenerates everything (for example after changing the voice). `-- --only fetch.` limits it to ids starting with `fetch.`.
-- **Changing the voice:** listen to samples at https://rhasspy.github.io/piper-samples/, then run `npm run voices:setup -- --voice en_US-joe-medium` and `npm run voices -- --voice en_US-joe-medium --force`. To make it the default, set `DEFAULT_PIPER_VOICE` in `scripts/voices/config.ts`.
-- **Other engines:** `-- --engine sapi` uses Windows' built-in voice (no download, more robotic). Engines live in `scripts/voices/engines.ts`; add one by implementing its small `Engine` interface.
-- Speaking rate is set by `PIPER_LENGTH_SCALE` in `scripts/voices/config.ts` (a bit slower than normal).
+- It generates only files that don't exist yet, in the same voice, so new lines match the old ones. It makes every line's name-free version, plus named versions for `childName` and both grandpa names in `src/config/family.ts`.
+- `npm run voices -- --force` regenerates everything. `-- --only fetch.` limits it to ids starting with `fetch.`.
+- The engine and voice defaults are in `scripts/voices/config.ts` (`DEFAULT_ENGINE`, `DEFAULT_ELEVEN_VOICE`). The script uses the official `@elevenlabs/elevenlabs-js` SDK (a dev dependency; it's never in the game).
+- The whole script is a couple of thousand characters, which fits the free tier. Check ElevenLabs' terms for free-tier use.
+
+### ElevenLabs key
+
+The key lives in `.env.local` (git-ignored, never committed). The easiest way to get one on a new computer is to run this in the project folder and approve in the browser:
+
+```bash
+npx -y @elevenlabs/cli@latest onboard init
+```
+
+Or create one on elevenlabs.io under **Developers → API Keys** (it only needs **Text to Speech** and **Voices (read)**), copy `.env.example` to `.env.local`, and paste it into `ELEVENLABS_API_KEY`.
+
+### Changing the voice
+
+`npm run voices -- --list-voices` prints the voices your account can use, with their ids. Try one on a single line, then regenerate everything:
+
+```bash
+npm run voices -- --voice <voice id> --force --only start.hello
+npm run voices -- --voice <voice id> --force
+```
+
+To keep it, set `ELEVENLABS_VOICE_ID` in `.env.local` or change `DEFAULT_ELEVEN_VOICE`. Always use `--force` when switching voices or engines, or only missing files get the new voice and the game ends up with a mix.
+
+### Offline alternatives
+
+- **Piper** (free, local, no account): `npm run voices:setup` downloads the engine and the `en_US-ryan-high` voice into `scripts/voices/.cache/` (git-ignored, ~140 MB). Then `npm run voices -- --engine piper --force`. Other voices: https://rhasspy.github.io/piper-samples/ (pass `--voice en_US-joe-medium` to both commands). Speaking rate is `PIPER_LENGTH_SCALE` in `scripts/voices/config.ts`.
+- **Windows' built-in voice**: `-- --engine sapi` (no download, more robotic).
+- Engines live in `scripts/voices/engines.ts`; add one by implementing its small `Engine` interface.
 
 ## Deploying
 
