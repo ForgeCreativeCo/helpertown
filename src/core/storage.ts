@@ -1,4 +1,6 @@
 import { family } from '../config/family';
+import { STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
+import type { MagnetId } from '../content/magnets';
 import type { StickerId } from '../content/stickers';
 import type { VehicleId } from '../content/vehicles';
 import { STARTER_TOOLS, type ToolId } from '../content/tools';
@@ -26,7 +28,7 @@ export interface Settings {
   music: boolean;
 }
 
-export type ActivityId = 'fetch' | 'fixit' | 'toolwall';
+export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook';
 
 export interface ToolStat {
   /** Questions that asked for this tool. */
@@ -53,6 +55,10 @@ export interface Progress {
   garage: Partial<Record<VehicleId, { stars: number }>>;
   /** Today's play session, for the wind-down. */
   session: SessionData;
+  /** Mama's Kitchen: ingredient first-try stats, how many are in play, fridge magnets earned. */
+  ingredients: Partial<Record<IngredientId, ToolStat>>;
+  ingredientsIntroduced: number;
+  magnets: MagnetId[];
 }
 
 export interface SessionData {
@@ -82,7 +88,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false } },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [] },
   };
 }
 

@@ -1,4 +1,4 @@
-import { Pops } from '../art/pops';
+import { Pops } from '../art/characters';
 import { toolArt } from '../art/tools';
 import { benchScene, FLOOR, PEGBOARD, pegs, toolWallBack } from '../art/workshop';
 import { lineId } from '../content/lines';
@@ -11,7 +11,7 @@ import { shuffle } from '../core/rounds';
 import type { Scene, SceneContext } from '../core/scenes';
 import { s, stageSvg } from '../core/svg';
 import { planToolWall, visibleOutlines } from '../core/toolWallPlan';
-import { nextPraise, popsLife } from './common';
+import { nextPraise, characterLife } from './common';
 import { TOOL_ORIGIN } from './toolPieces';
 
 const TRACK = 'toolwall.choices';
@@ -38,7 +38,7 @@ export function toolwallScene(): Scene {
       const heldLayer = s('g');
       svg.append(toolWallBack(), pegLayer, slotLayer, pops.el, benchScene().bench, heldLayer);
       ctx.root.append(svg);
-      popsLife(ctx, pops);
+      characterLife(ctx, pops);
 
       void runRound(ctx, svg, pops, { pegLayer, slotLayer, heldLayer }).catch((err) => {
         console.error(err);

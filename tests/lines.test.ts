@@ -23,7 +23,7 @@ describe('voice lines', () => {
   it('every variable in the text is declared or a name', () => {
     for (const t of LINE_TEMPLATES) {
       const used = [...t.text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]);
-      for (const v of used) expect(['child', 'grandpa', ...(t.vars ?? [])]).toContain(v);
+      for (const v of used) expect(['child', 'grandpa', 'mom', ...(t.vars ?? [])]).toContain(v);
     }
   });
 

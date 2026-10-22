@@ -1,10 +1,15 @@
 # Helper Town
 
-A tap-only learning game for a little helper who can't read yet. He's Pops' helper in Pops' Workshop: Pops asks, he helps, things get fixed.
+A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop and cooking with Mama in her kitchen. They ask, he helps, and they're proud of him.
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** Milestone 4. Start screen, the workshop hub with Pops, **Fetch the Tool**, **Fix It**, **Tool Wall** and **My Garage**, celebrations, toolbox stickers, adaptive difficulty, generated voices, the **parent menu** and the **session wind-down**. Polish, offline checks and the Netlify deploy come next.
+**Status:** Phase 2 started. The **Town Map** is the home screen with two places:
+
+- **Pops' Workshop** (Phase 1, complete): Fetch the Tool, Fix It, Tool Wall, My Garage.
+- **Mama's Kitchen** (new): Fetch the Ingredient, with fridge magnets as rewards. Baking together and decorating cookies come next.
+
+Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. Still to come: the rest of the kitchen, a **Post Office** for letters and numbers, and the offline checks and Netlify deploy (M5).
 
 ## Running locally
 
@@ -65,8 +70,9 @@ src/
   content/              tools, vehicles, stickers and voice lines as typed data
   config/family.ts      child and grandpa names
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
-  scenes/               start, hub, fetch (Fetch the Tool), fixit (Fix It), toolwall (Tool Wall),
-                        garage (My Garage), gallery (dev only)
+  scenes/               start, town (Town Map), hub (Pops' Workshop), fetch, fixit, toolwall,
+                        garage, kitchen (Mama's Kitchen), cook (Fetch the Ingredient),
+                        fetchGame (the shared "fetch" game), rest, gallery (dev only)
 scripts/
   vite-asset-manifest.ts  lists the bundled voice files and photos at build time
   voices/                 voice generation (setup, engines, mp3 encoding)
@@ -77,6 +83,8 @@ tests/                  Vitest
 ```
 
 ### Toddler rules the code enforces
+
+- **No reading:** every instruction is spoken. The only words on child screens are his initial on license plates. In the coming letters-and-numbers games, letters and numerals will appear as things to tap (agreed as a change to the original rule), but instructions stay spoken.
 
 - **Input** (`core/input.ts`, `core/tapGate.ts`): responds on pointerdown. Touches that land within 80 ms of another touch (a palm or several fingers), report a large contact area, or start in the outer 40 px of the screen are ignored. A resting palm does not block real taps. Repeat taps on the same thing within 400 ms are ignored, and nothing responds during scene transitions.
 - **Scenes** (`core/scenes.ts`): each scene's taps, timers, waits and looping animations are cleaned up automatically when it leaves, and its pending async steps simply stop. Mashing during a transition is ignored, so nothing can be skipped or double-launched.
@@ -90,6 +98,20 @@ tests/                  Vitest
   Within each source the named version (for example "Hi Sam! Let's help Pops!") wins over the name-free one. A build step lists which voice files exist, so the app never requests a missing file.
 - **Errorless questions** (`core/question.ts`): a wrong tap makes the item say its name and wobble, then the question repeats. The second wrong tap makes the right answer bounce and glow. From the third, Pops points at it and it's the only thing that responds. With no taps: the question repeats after ~7 s, the answer glows after ~14 s, and after ~60 s Pops asks "Are you still there?" and the game rests behind a big play button. Tapping Pops repeats the question at any time.
 - **Adaptive difficulty** (`core/difficulty.ts`): starts with 2 choices. 3 first-try right answers in a row add one (up to 4). 2 first-try misses in one round remove one (down to 2).
+
+### Town Map
+
+The home screen after the start button: a sunny street with Pops' Workshop and Mama's house (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "Mama's kitchen!") and zooms in. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
+
+### Mama's Kitchen
+
+Mama (an original cartoon mom with her hair in a bun and a heart on her apron) is at the counter. Tap the **fridge** to cook with her:
+
+- **Fetch the Ingredient:** "Mama needs the eggs!" He finds it on the counter among 2–4 choices. It uses the same errorless help and adaptive difficulty as Fetch the Tool (it's the same engine). Mama tips it into her mixing bowl with its own sound. It starts with eggs, banana and milk, then adds strawberries, flour, butter, blueberries and sugar one at a time as he learns them.
+- **Reward:** each round earns a fridge magnet (strawberry, cupcake, heart, banana, star, carrot, flower, apple). Magnets go on the fridge door; tap one to hear it.
+- **Wind-down:** if the session ends here, Mama yawns and waves and the window shade comes down.
+
+Coming next in the kitchen: baking together (crack, pour, stir while Mama counts, into the oven) and decorating cookies (colors and shapes).
 
 ### Fix It
 
@@ -159,7 +181,7 @@ Put `pops.jpg` and/or `child.jpg` (or `.png`/`.webp`) in `public/family/`, then 
 
 ## Generating voices
 
-The voice lines are generated with [ElevenLabs](https://elevenlabs.io) text to speech, voice **"Bill"** (a wise, older American man), model `eleven_v4`. They're saved as small mono mp3s in `public/audio/generated/` and committed to the repo, so you only need this when lines or names change. ElevenLabs is only used while generating files: the game plays the bundled mp3s and never contacts it.
+The voice lines are generated with [ElevenLabs](https://elevenlabs.io) text to speech, model `eleven_v4`, with one voice per speaker: **Pops** is "Bill" (a wise, older American man) and **Mama** is "Sarah" (a mature, reassuring American woman). Each line in `src/content/lines.ts` names its speaker (Pops by default); Mama's name ("Mama") comes from `momName` in `src/config/family.ts`. They're saved as small mono mp3s in `public/audio/generated/` and committed to the repo, so you only need this when lines or names change. ElevenLabs is only used while generating files: the game plays the bundled mp3s and never contacts it.
 
 ```bash
 npm run voices
@@ -167,7 +189,7 @@ npm run voices
 
 - It generates only files that don't exist yet, in the same voice, so new lines match the old ones. It makes every line's name-free version, plus named versions for `childName` and both grandpa names in `src/config/family.ts`.
 - `npm run voices -- --force` regenerates everything. `-- --only fetch.` limits it to ids starting with `fetch.`.
-- The engine and voice defaults are in `scripts/voices/config.ts` (`DEFAULT_ENGINE`, `DEFAULT_ELEVEN_VOICE`). The script uses the official `@elevenlabs/elevenlabs-js` SDK (a dev dependency; it's never in the game).
+- The engine and voice defaults are in `scripts/voices/config.ts` (`DEFAULT_ENGINE`, `DEFAULT_ELEVEN_VOICES`). The script uses the official `@elevenlabs/elevenlabs-js` SDK (a dev dependency; it's never in the game).
 - The whole script is a couple of thousand characters, which fits the free tier. Check ElevenLabs' terms for free-tier use.
 
 ### ElevenLabs key
@@ -189,7 +211,7 @@ npm run voices -- --voice <voice id> --force --only start.hello
 npm run voices -- --voice <voice id> --force
 ```
 
-To keep it, set `ELEVENLABS_VOICE_ID` in `.env.local` or change `DEFAULT_ELEVEN_VOICE`. Always use `--force` when switching voices or engines, or only missing files get the new voice and the game ends up with a mix.
+To keep it, set `ELEVENLABS_VOICE_POPS` or `ELEVENLABS_VOICE_MAMA` in `.env.local`, or change `DEFAULT_ELEVEN_VOICES`. (`--voice` applies to every speaker, so use it with `--only` to try one line.) Always use `--force` when switching voices or engines, or only missing files get the new voice and the game ends up with a mix.
 
 ### Offline alternatives
 

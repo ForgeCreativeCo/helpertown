@@ -142,7 +142,8 @@ export function pegboard(): SVGGElement {
   for (let y = 120; y <= 310; y += 32) {
     for (let x = 95; x <= 370; x += 32) holes.push(`<circle cx="${x}" cy="${y}" r="5" fill="#a77b4c"/>`);
   }
-  return fromMarkup(`
+  // Sits 70 lower than drawn, leaving the top-left corner for the town button.
+  return fromMarkup(`<g transform="translate(0 70)">
     <rect x="70" y="95" width="320" height="235" rx="12" fill="#e6c48f" stroke="${INK}" stroke-width="10"/>
     ${holes.join('')}
     <g stroke="${INK}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
@@ -152,7 +153,7 @@ export function pegboard(): SVGGElement {
       <path d="M229 128 L229 150 L253 150 L253 128 A30 30 0 1 1 229 128 Z" fill="#3d7fe0"/>
       <rect x="318" y="140" width="34" height="62" rx="12" fill="#f2b33d"/>
       <rect x="329" y="200" width="12" height="80" rx="4" fill="#cfd6dd"/>
-    </g>
+    </g></g>
   `);
 }
 

@@ -1,4 +1,4 @@
-import { Pops } from '../art/pops';
+import { Pops } from '../art/characters';
 import { addProblem, type ProblemView } from '../art/problems';
 import { vehicleArt, VEHICLE_H, VEHICLE_W, type VehicleArt } from '../art/vehicles';
 import { FLOOR, repairBay } from '../art/workshop';
@@ -15,7 +15,7 @@ import { askQuestion, type Choice } from '../core/question';
 import { pickChoices } from '../core/rounds';
 import type { Scene, SceneContext } from '../core/scenes';
 import { fromMarkup, s, stageSvg } from '../core/svg';
-import { popsLife } from './common';
+import { characterLife } from './common';
 import { makePieces, showPieces, TOOL_ORIGIN, toolChoices, type Row, type ToolPiece } from './toolPieces';
 
 const CHOICES = 'fixit.choices';
@@ -36,7 +36,7 @@ export function fixitScene(): Scene {
       const toolLayer = s('g');
       svg.append(bay.back, pops.el, vehicleLayer, bay.front, toolLayer);
       ctx.root.append(svg);
-      popsLife(ctx, pops);
+      characterLife(ctx, pops);
 
       void runRound(ctx, { svg, pops, vehicleLayer, toolLayer }).catch((err) => {
         console.error(err);

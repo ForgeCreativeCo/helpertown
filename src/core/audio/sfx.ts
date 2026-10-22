@@ -19,7 +19,10 @@ export type SfxName =
   | 'honk'
   | 'siren'
   | 'fanfare'
-  | 'vroom';
+  | 'vroom'
+  | 'crack'
+  | 'plop'
+  | 'pour';
 
 type Env = { attack?: number; hold?: number; release: number; peak: number };
 
@@ -172,6 +175,13 @@ const SOUNDS: Record<SfxName, (s: Sfx, ctx: AudioContext, out: AudioNode, t: num
     tone(ctx, out, t, 'sine', 140, 220, { attack: 0.08, hold: 0.5, release: 0.35, peak: 0.12 });
     noise(s, ctx, out, t, 'lowpass', 300, 500, { attack: 0.1, hold: 0.4, release: 0.3, peak: 0.12 });
   },
+  // Kitchen sounds: an egg cracking, something soft dropping in the bowl, milk pouring.
+  crack: (s, ctx, out, t) => {
+    noise(s, ctx, out, t, 'highpass', 1800, 1800, { release: 0.04, peak: 0.45 });
+    noise(s, ctx, out, t + 0.05, 'bandpass', 900, 600, { release: 0.06, peak: 0.3 });
+  },
+  plop: (_s, ctx, out, t) => tone(ctx, out, t, 'sine', 520, 160, { release: 0.14, peak: 0.4 }),
+  pour: (s, ctx, out, t) => noise(s, ctx, out, t, 'bandpass', 700, 1100, { attack: 0.06, hold: 0.35, release: 0.2, peak: 0.25 }),
   fanfare: (_s, ctx, out, t) => {
     [0, 4, 7, 12].forEach((n, i) =>
       tone(ctx, out, t + i * 0.12, 'triangle', NOTE(n), NOTE(n), { hold: i === 3 ? 0.25 : 0.05, release: 0.2, peak: 0.22 }),

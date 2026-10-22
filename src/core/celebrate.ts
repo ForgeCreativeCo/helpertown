@@ -1,5 +1,5 @@
 import { woodFrame } from '../art/frames';
-import type { Pops } from '../art/pops';
+import type { Character } from '../art/characters';
 import { stickerArt } from '../art/stickers';
 import { lineId } from '../content/lines';
 import type { StickerId } from '../content/stickers';
@@ -9,10 +9,15 @@ import type { SceneContext } from './scenes';
 import { s } from './svg';
 
 export interface CelebrateOptions {
-  pops: Pops;
+  /** The grown-up who cheers (Pops or Mama). */
+  pops: Character;
   svg: SVGSVGElement;
+  /** The big praise line (default Pops' "You're a great helper!"). */
+  greatLine?: string;
   /** Sticker earned this round; it pops up big, then flies toward the toolbox. */
   sticker?: StickerId;
+  /** Any other reward (a fridge magnet): its art in a 100×100 box and the lines that announce it. */
+  reward?: { art: SVGGElement; lines: string[] };
   /** Where the reward flies (stage coords). Defaults to the hub toolbox, bottom left. */
   flyTo?: { x: number; y: number };
 }
@@ -63,10 +68,11 @@ export async function celebrate(ctx: SceneContext, o: CelebrateOptions): Promise
   ctx.sfx('fanfare');
   bounce(o.pops.body, 30);
   ctx.after(600, () => bounce(o.pops.body, 30));
-  await ctx.speak('round.great');
+  await ctx.speak(o.greatLine ?? 'round.great');
 
-  if (o.sticker) {
-    const art = stickerArt(o.sticker);
+  const reward = o.reward ?? (o.sticker ? { art: stickerArt(o.sticker), lines: ['round.sticker', lineId('sticker.say', o.sticker)] } : null);
+  if (reward) {
+    const { art } = reward;
     art.setAttribute('class', 'tf');
     const holder = s('g', { class: 'no-hit' }, [art]);
     o.svg.append(holder);
@@ -75,8 +81,7 @@ export async function celebrate(ctx: SceneContext, o: CelebrateOptions): Promise
     placeAt(holder, center, origin);
     popIn(art, 500);
     ctx.sfx('sparkle');
-    await ctx.speak('round.sticker');
-    await ctx.speak(lineId('sticker.say', o.sticker));
+    for (const line of reward.lines) await ctx.speak(line);
     const to = o.flyTo ?? { x: 215, y: 640 };
     ctx.sfx('whoosh');
     await ctx.guard(flyArc(holder, center, { ...to, scale: 0.5, rot: -10 }, origin, 800, 120));

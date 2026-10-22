@@ -6,9 +6,12 @@ import { lineId } from '../content/lines';
 import type { SceneContext } from '../core/scenes';
 import { s } from '../core/svg';
 
-/** A tool laid out as a tappable choice (shared by Fetch the Tool and Fix It). */
-export interface ToolPiece {
-  id: ToolId;
+/**
+ * Things laid out in a row as tappable choices: tools (Fetch the Tool, Fix It)
+ * or ingredients (Mama's Kitchen). Art is drawn in a 160×160 box.
+ */
+export interface ToolPiece<T extends string = ToolId> {
+  id: T;
   el: SVGGElement;
   art: SVGGElement;
   place: Place;
@@ -37,12 +40,16 @@ export function slotPlaces(n: number, row: Row): Place[] {
   }));
 }
 
-export function makePieces(ids: ToolId[], row: Row): ToolPiece[] {
+export function makePieces<T extends string = ToolId>(
+  ids: T[],
+  row: Row,
+  artFor: (id: T) => SVGGElement = (id) => toolArt(id as unknown as ToolId),
+): ToolPiece<T>[] {
   const places = slotPlaces(ids.length, row);
   const spacing = (row.right - row.left) / ids.length;
   return ids.map((id, i) => {
     const place = places[i]!;
-    const art = toolArt(id);
+    const art = artFor(id);
     art.setAttribute('class', 'tf');
     // Pad the hit area as far as the gap to the next tool allows (always 140+ px).
     const pad = Math.max(8, Math.min(30, (spacing / (place.scale ?? 1) - TOOL_SIZE) / 2));
@@ -61,18 +68,23 @@ export function makePieces(ids: ToolId[], row: Row): ToolPiece[] {
 }
 
 export function toolChoices(pieces: ToolPiece[], target: ToolId): Choice[] {
+  return itemChoices(pieces, target, (id) => lineId('fetch.thatsThe', id));
+}
+
+/** The pieces as question choices; a wrong one says its own name. */
+export function itemChoices<T extends string>(pieces: ToolPiece<T>[], target: T, nameLine: (id: T) => string): Choice[] {
   return pieces.map((p) => ({
     el: p.el,
     art: p.art,
     correct: p.id === target,
-    nameLine: lineId('fetch.thatsThe', p.id),
+    nameLine: nameLine(p.id),
     glow: { cx: TOOL_ORIGIN.x, cy: TOOL_ORIGIN.y, r: 100 },
     center: { x: p.place.x, y: p.place.y },
   }));
 }
 
 /** Adds the pieces to the layer one after another with a little pop. */
-export async function showPieces(ctx: SceneContext, layer: SVGGElement, pieces: ToolPiece[]): Promise<void> {
+export async function showPieces<T extends string>(ctx: SceneContext, layer: SVGGElement, pieces: ToolPiece<T>[]): Promise<void> {
   for (const [i, p] of pieces.entries()) {
     ctx.after(i * 110, () => {
       layer.append(p.el);

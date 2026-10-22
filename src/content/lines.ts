@@ -1,3 +1,6 @@
+import { family } from '../config/family';
+import { INGREDIENTS } from './ingredients';
+import { MAGNETS } from './magnets';
 import { PROBLEMS } from './problems';
 import { STICKERS } from './stickers';
 import { TOOLS } from './tools';
@@ -10,11 +13,16 @@ import { VEHICLES } from './vehicles';
  *
  * `{child}` and `{grandpa}` are names. A template that uses either must also
  * have `plain`, a name-free version that plays whenever no matching named
- * voice file exists.
+ * voice file exists. `{mom}` is filled in from family.ts when lines are
+ * expanded ("Mama"), so it needs no variants.
+ *
+ * Each line has a speaker, which picks the voice it's generated in.
  */
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown';
+export type Speaker = 'pops' | 'mama';
 
-export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen';
+
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet';
 
 export interface LineTemplate {
   id: string;
@@ -22,6 +30,8 @@ export interface LineTemplate {
   text: string;
   plain?: string;
   vars?: readonly VarKind[];
+  /** Who says it (default: Pops). */
+  speaker?: Speaker;
 }
 
 export const LINE_TEMPLATES: readonly LineTemplate[] = [
@@ -77,6 +87,38 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'garage.name', group: 'garage', text: '{vehicle}!', vars: ['vehicle'] },
   { id: 'nav.home', group: 'hub', text: 'Back to the workshop!' },
 
+  // Town map (Pops narrates)
+  { id: 'town.hello', group: 'town', text: 'Hi {child}! Who should we help today?', plain: 'Hi there! Who should we help today?' },
+  { id: 'town.workshop', group: 'town', text: "{grandpa}'s workshop!", plain: 'The workshop!' },
+  { id: 'town.kitchen', group: 'town', text: "{mom}'s kitchen!" },
+  { id: 'nav.town', group: 'town', text: 'Back to town!' },
+
+  // Mama's Kitchen (Mama speaks)
+  { id: 'kitchen.hello', group: 'kitchen', speaker: 'mama', text: 'Hi {child}! Want to help me cook?', plain: 'Hi sweetie! Want to help me cook?' },
+  { id: 'kitchen.fridge', group: 'kitchen', speaker: 'mama', text: 'The fridge!' },
+  { id: 'mama.hello', group: 'kitchen', speaker: 'mama', text: 'Hi, sweetie!' },
+  { id: 'mama.giggle', group: 'kitchen', speaker: 'mama', text: "Hee hee! You're so silly!" },
+  { id: 'cook.intro', group: 'kitchen', speaker: 'mama', text: "Let's find what we need!" },
+  { id: 'cook.ask', group: 'kitchen', speaker: 'mama', text: '{mom} needs the {ingredient}!', vars: ['ingredient'] },
+  { id: 'cook.thatsThe', group: 'kitchen', speaker: 'mama', text: "That's the {ingredient}!", vars: ['ingredient'] },
+  { id: 'cook.found', group: 'kitchen', speaker: 'mama', text: 'You found the {ingredient}!', vars: ['ingredient'] },
+  { id: 'cook.newItem', group: 'kitchen', speaker: 'mama', text: 'Look! Something new! The {ingredient}!', vars: ['ingredient'] },
+  { id: 'mamaPraise.thanks', group: 'kitchen', speaker: 'mama', text: 'Thank you, sweetie!' },
+  { id: 'mamaPraise.yum', group: 'kitchen', speaker: 'mama', text: 'Yum! Just right!' },
+  { id: 'mamaPraise.cook', group: 'kitchen', speaker: 'mama', text: "You're a great cook!" },
+  { id: 'mamaPraise.helper', group: 'kitchen', speaker: 'mama', text: 'What a good helper!' },
+  { id: 'mama.great', group: 'kitchen', speaker: 'mama', text: "You're a great helper, {child}!", plain: "You're a great helper, sweetie!" },
+  { id: 'mama.magnet', group: 'kitchen', speaker: 'mama', text: 'A new magnet for the fridge!' },
+  { id: 'magnet.say', group: 'kitchen', speaker: 'mama', text: '{magnet}!', vars: ['magnet'] },
+  { id: 'mama.stillThere', group: 'kitchen', speaker: 'mama', text: 'Are you still there, sweetie?' },
+  {
+    id: 'mama.goodbye',
+    group: 'winddown',
+    speaker: 'mama',
+    text: 'Great work today, {child}! Time for a nap. See you next time!',
+    plain: 'Great work today, sweetie! Time for a nap. See you next time!',
+  },
+
   // Session wind-down
   {
     id: 'winddown.goodbye',
@@ -87,6 +129,7 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
 ];
 
 export const PRAISE_LINES = ['praise.thanks', 'praise.justRight', 'praise.quick', 'praise.greatHelping'] as const;
+export const MAMA_PRAISE_LINES = ['mamaPraise.thanks', 'mamaPraise.yum', 'mamaPraise.cook', 'mamaPraise.helper'] as const;
 
 /** Variable values for each kind, with the spoken word used in the text. */
 const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
@@ -95,6 +138,8 @@ const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   vehicle: VEHICLES.map((v) => ({ id: v.id, word: v.name })),
   problem: PROBLEMS.map((p) => ({ id: p.id, word: p.sentence })),
   count: ['One', 'Two', 'Three', 'Four', 'Five'].map((word, i) => ({ id: String(i + 1), word })),
+  ingredient: INGREDIENTS.map((i) => ({ id: i.id, word: i.name })),
+  magnet: MAGNETS.map((m) => ({ id: m.id, word: m.phrase })),
 };
 
 export interface Line {
@@ -108,6 +153,7 @@ export interface Line {
   plain: string;
   usesChild: boolean;
   usesGrandpa: boolean;
+  speaker: Speaker;
 }
 
 export interface Names {
@@ -137,15 +183,17 @@ export function expandLines(templates: readonly LineTemplate[] = LINE_TEMPLATES)
       );
     }
     for (const c of combos) {
-      const text = fill(t.text, c.words);
+      const words = { ...c.words, mom: family.momName };
+      const text = fill(t.text, words);
       out.push({
         id: lineId(t.id, ...c.ids),
         templateId: t.id,
         group: t.group,
         text,
-        plain: fill(t.plain ?? t.text, c.words),
+        plain: fill(t.plain ?? t.text, words),
         usesChild: t.text.includes('{child}'),
         usesGrandpa: t.text.includes('{grandpa}'),
+        speaker: t.speaker ?? 'pops',
       });
     }
   }

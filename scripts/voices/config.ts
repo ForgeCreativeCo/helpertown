@@ -10,8 +10,15 @@ export const OUT_DIR = join('public', 'audio', 'generated');
  * or VOICE_ENGINE / ELEVENLABS_VOICE_ID in .env.local.
  */
 export const DEFAULT_ENGINE = 'elevenlabs';
-/** ElevenLabs "Bill": a wise, mature, older American male voice. */
-export const DEFAULT_ELEVEN_VOICE = 'pqHfZKP75CvOlQylNhV4';
+/**
+ * ElevenLabs voice per speaker. Pops is "Bill" (wise, mature, older American
+ * man); Mama is "Sarah" (mature, reassuring, confident American woman).
+ * Override one with ELEVENLABS_VOICE_<SPEAKER> (e.g. ELEVENLABS_VOICE_MAMA).
+ */
+export const DEFAULT_ELEVEN_VOICES = {
+  pops: 'pqHfZKP75CvOlQylNhV4',
+  mama: 'EXAVITQu4vr4xnSDxMaL',
+} as const;
 
 /**
  * Piper voice to use (the free offline fallback: `--engine piper`). Audition others at https://rhasspy.github.io/piper-samples/

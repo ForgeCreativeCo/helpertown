@@ -1,4 +1,4 @@
-import { Pops } from '../art/pops';
+import { Pops } from '../art/characters';
 import { stickerArt } from '../art/stickers';
 import {
   carLift,
@@ -16,11 +16,11 @@ import {
 } from '../art/workshop';
 import { lineId } from '../content/lines';
 import type { StickerId } from '../content/stickers';
-import { bounce, breathe, finished, placeAt, popIn, wiggle } from '../core/anim';
+import { bounce, breathe, placeAt, popIn, wiggle } from '../core/anim';
 import { photoUrl } from '../core/photos';
-import { isResting, startRest, timeUp } from '../core/session';
-import { localDate } from '../core/storage';
 import { woodFrame } from '../art/frames';
+import { townButton } from '../art/town';
+import { navButton, watchSession, windDown } from './common';
 import type { Scene, SceneContext } from '../core/scenes';
 import { hitGroup, s, stageSvg } from '../core/svg';
 
@@ -35,13 +35,13 @@ interface HubSpot {
 }
 
 const SPOTS: HubSpot[] = [
-  { lineId: 'hub.pegboard', art: pegboard, box: { x: 70, y: 95, w: 320, h: 235 }, sceneId: 'toolwall' },
+  { lineId: 'hub.pegboard', art: pegboard, box: { x: 70, y: 165, w: 320, h: 235 }, sceneId: 'toolwall' },
   { lineId: 'hub.garage', art: garageDoor, box: { x: 987, y: 160, w: 260, h: 535 }, sceneId: 'garage' },
   { lineId: 'hub.lift', art: carLift, box: { x: 705, y: 410, w: 280, h: 280 }, front: true, sceneId: 'fixit' },
   { lineId: 'hub.toolbox', art: toolbox, box: { x: 100, y: 500, w: 265, h: 190 }, front: true, sceneId: 'fetch' },
 ];
 
-/** Pops' Workshop: the home screen. */
+/** Pops' Workshop: one of the places on the town map. */
 export function hubScene(): Scene {
   return {
     backdrop: FLOOR,
@@ -115,54 +115,28 @@ export function hubScene(): Scene {
         void ctx.speak(popsLine++ % 2 === 0 ? 'pops.hello' : 'pops.giggle', { replaceQueued: true });
       });
 
+      navButton(ctx, svg, townButton(110, 92), 110, 92, 'nav.town', 'town');
+
       if (ctx.params.greet) ctx.after(250, () => void ctx.speak('start.hello'));
 
-      // Session wind-down: rest if today's session is over; otherwise keep an eye on the clock.
-      const progress = ctx.progress;
-      if (isResting(progress, localDate())) {
-        ctx.go('rest', { instant: true, queue: true });
-        return;
-      }
-      const watch = () => {
-        if (timeUp(progress, ctx.app.store.settings.sessionMinutes, localDate())) void windDown(ctx, svg, pops);
-        else ctx.after(5000, watch);
-      };
-      ctx.after(ctx.params.greet ? 4000 : 900, watch);
+      // When the session is over: Pops yawns, waves, and the garage door rolls down.
+      watchSession(ctx, ctx.params.greet ? 4000 : 900, () => {
+        const { interior, curtain } = garageCurtain();
+        interior.style.opacity = '0';
+        void windDown(ctx, svg, {
+          host: pops,
+          goodbyeLine: 'winddown.goodbye',
+          closing: {
+            layers: [interior, curtain],
+            play: () => {
+              interior.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, fill: 'forwards' });
+              return curtain.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 4000, easing: 'ease-in-out', fill: 'forwards' });
+            },
+          },
+        });
+      });
     },
   };
-}
-
-/**
- * Time's up: the lights dim, Pops yawns and waves goodbye, and the garage door
- * slowly rolls down. Then the game rests until tomorrow.
- */
-async function windDown(ctx: SceneContext, svg: SVGSVGElement, pops: Pops): Promise<void> {
-  const { input, audio } = ctx.app;
-  input.lock();
-  ctx.onCleanup(() => input.unlock());
-  audio.clearQueue();
-  audio.pauseMusic(true);
-
-  const { interior, curtain } = garageCurtain();
-  interior.style.opacity = '0';
-  const dim = s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#0b1630', opacity: 0, class: 'no-hit' });
-  svg.append(interior, curtain, dim);
-  dim.animate([{ opacity: 0 }, { opacity: 0.5 }], { duration: 3500, easing: 'ease-in-out', fill: 'forwards' });
-  interior.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, fill: 'forwards' });
-
-  pops.pose('yawning');
-  await ctx.wait(1500);
-  pops.pose('waving');
-  const goodbye = ctx.speak('winddown.goodbye');
-  ctx.keep(pops.body.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(2deg)' }, { transform: 'rotate(-2deg)' }, { transform: 'rotate(0deg)' }], { duration: 1600, iterations: Infinity }));
-  const close = curtain.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 4000, easing: 'ease-in-out', fill: 'forwards' });
-  await goodbye;
-  await ctx.guard(finished(close));
-
-  startRest(ctx.progress, localDate());
-  ctx.save();
-  await ctx.wait(900);
-  ctx.go('rest');
 }
 
 /** Small loops that make the workshop feel alive. Slow, gentle, transform/opacity only. */

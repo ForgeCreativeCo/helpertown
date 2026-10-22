@@ -2,9 +2,11 @@ import { s } from '../core/svg';
 import { INK } from './palette';
 
 /**
- * Pops: an original cartoon grandpa (cap, glasses, big mustache, overalls).
- * Drawn in a local 300×470 box; `x, y, scale` place him on the stage.
- * Poses swap his arms, eyes and mouth. Only `body` is ever animated, so the
+ * The grown-ups he helps, drawn with one shared rig so they share every pose:
+ *   Pops: an original cartoon grandpa (cap, glasses, big mustache, overalls).
+ *   Mama: an original cartoon mom (hair in a bun, apron with a heart pocket).
+ * Each is drawn in a local 300×470 box; `x, y, scale` place them on the stage.
+ * Poses swap the arms, eyes and mouth. Only `body` is ever animated, so the
  * placement transform on `el` is never overwritten.
  */
 export type PopsPose =
@@ -49,18 +51,28 @@ const R_HOLD: ArmSpec = { pts: [SHOULDER_R, [280, 372], [330, 330]], hand: 'fist
 /** Where the right hand holds a tool, in local coordinates. */
 const HOLD_POINT: Pt = [330, 330];
 
-function armMarkup(a: ArmSpec): string {
+/** What makes a character look like themselves (everything but arms, eyes and mouth). */
+export interface Look {
+  skin: string;
+  sleeve: string;
+  torso: string;
+  head: string;
+  face: string;
+  top: string;
+}
+
+function armMarkup(a: ArmSpec, look: Look): string {
   const d = `M${a.pts.map((p) => p.join(' ')).join(' L')}`;
   const [hx, hy] = a.pts[a.pts.length - 1]!;
   return `
     <path d="${d}" fill="none" stroke="${INK}" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="${d}" fill="none" stroke="${SHIRT}" stroke-width="31" stroke-linecap="round" stroke-linejoin="round"/>
-    <g transform="translate(${hx} ${hy}) rotate(${a.rot ?? 0})">${handMarkup(a.hand)}</g>
+    <path d="${d}" fill="none" stroke="${look.sleeve}" stroke-width="31" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(${hx} ${hy}) rotate(${a.rot ?? 0})">${handMarkup(a.hand, look.skin)}</g>
   `;
 }
 
-function handMarkup(kind: HandKind): string {
-  const sk = `fill="${SKIN}" stroke="${INK}" stroke-width="7"`;
+function handMarkup(kind: HandKind, skin: string): string {
+  const sk = `fill="${skin}" stroke="${INK}" stroke-width="7"`;
   switch (kind) {
     case 'open':
       return `
@@ -162,12 +174,14 @@ const CAP_MARKUP = `
   <circle cx="150" cy="78" r="6" fill="${INK}"/>
 `;
 
-export class Pops {
+export const POPS_LOOK: Look = { skin: SKIN, sleeve: SHIRT, torso: TORSO, head: HEAD, face: FACE_FRONT, top: CAP_MARKUP };
+
+export class Character {
   /** Positioned on the stage via its transform attribute. Never animated. */
   readonly el: SVGGElement;
   /** Everything visible. Animate this for bounces and idle motion. */
   readonly body: SVGGElement;
-  /** Invisible hit area covering Pops. */
+  /** Invisible hit area covering the character. */
   readonly hit: SVGRectElement;
   private armsEl: SVGGElement;
   private eyesEl: SVGGElement;
@@ -175,9 +189,11 @@ export class Pops {
   private x: number;
   private y: number;
   private scale: number;
+  private look: Look;
   current: PopsPose = 'idle';
 
-  constructor(x: number, y: number, scale = 1) {
+  constructor(look: Look, x: number, y: number, scale = 1) {
+    this.look = look;
     this.x = x;
     this.y = y;
     this.scale = scale;
@@ -186,13 +202,13 @@ export class Pops {
     this.eyesEl = s('g', { class: 'tf' });
     this.mouthEl = s('g');
     const torso = s('g');
-    torso.innerHTML = TORSO;
+    torso.innerHTML = look.torso;
     const head = s('g');
-    head.innerHTML = HEAD;
+    head.innerHTML = look.head;
     const face = s('g');
-    face.innerHTML = FACE_FRONT;
+    face.innerHTML = look.face;
     const cap = s('g');
-    cap.innerHTML = CAP_MARKUP;
+    cap.innerHTML = look.top;
     this.body = s('g', { class: 'tf-bottom' }, [torso, this.armsEl, head, this.eyesEl, face, this.mouthEl, cap]);
     this.el = s('g', { transform: `translate(${x} ${y}) scale(${scale})` }, [this.hit, this.body]);
     this.pose('idle');
@@ -215,7 +231,7 @@ export class Pops {
     } else {
       right = spec.right;
     }
-    this.armsEl.innerHTML = armMarkup(left) + armMarkup(right);
+    this.armsEl.innerHTML = armMarkup(left, this.look) + armMarkup(right, this.look);
     this.eyesEl.innerHTML = eyesMarkup(spec.eyes);
     this.mouthEl.innerHTML = mouthMarkup(spec.mouth);
   }
@@ -258,4 +274,55 @@ function pointArm(shoulder: Pt, target: { x: number; y: number }): ArmSpec {
   const hand: Pt = [shoulder[0] + ux * reach, shoulder[1] + uy * reach];
   const elbow: Pt = [shoulder[0] + ux * reach * 0.5, shoulder[1] + uy * reach * 0.5];
   return { pts: [shoulder, elbow, hand], hand: 'point', rot: (Math.atan2(uy, ux) * 180) / Math.PI };
+}
+
+const MAMA_SKIN = '#efbb93';
+const MAMA_SHIRT = '#4bb3a8';
+const HAIR = '#6b4226';
+
+const MAMA_TORSO = `
+  <path d="M50 480 L50 332 Q50 262 150 262 Q250 262 250 332 L250 480 Z" fill="${MAMA_SHIRT}" stroke="${INK}" stroke-width="9"/>
+  <path d="M104 318 L122 268 M196 318 L178 268" stroke="${INK}" stroke-width="22" stroke-linecap="round"/>
+  <path d="M104 318 L122 268 M196 318 L178 268" stroke="#fff8e8" stroke-width="11" stroke-linecap="round"/>
+  <path d="M90 480 L90 330 Q90 312 108 312 L192 312 Q210 312 210 330 L210 480 Z" fill="#fff8e8" stroke="${INK}" stroke-width="8" stroke-linejoin="round"/>
+  <rect x="58" y="398" width="184" height="16" rx="8" fill="#f2b33d" stroke="${INK}" stroke-width="6"/>
+  <path d="M150 386 C126 368 128 344 142 344 C147 344 150 349 150 353 C150 349 153 344 158 344 C172 344 174 368 150 386 Z" fill="#e85fa4" stroke="${INK}" stroke-width="5"/>
+`;
+
+const MAMA_HEAD = `
+  <circle cx="150" cy="40" r="34" fill="${HAIR}" stroke="${INK}" stroke-width="8"/>
+  <circle cx="150" cy="154" r="94" fill="${HAIR}" stroke="${INK}" stroke-width="9"/>
+  <rect x="126" y="66" width="48" height="14" rx="7" fill="#e85fa4" stroke="${INK}" stroke-width="5"/>
+  <circle cx="68" cy="172" r="18" fill="${MAMA_SKIN}" stroke="${INK}" stroke-width="7"/>
+  <circle cx="232" cy="172" r="18" fill="${MAMA_SKIN}" stroke="${INK}" stroke-width="7"/>
+  <circle cx="150" cy="162" r="82" fill="${MAMA_SKIN}" stroke="${INK}" stroke-width="9"/>
+  <circle cx="66" cy="198" r="7" fill="#f2b33d" stroke="${INK}" stroke-width="4"/>
+  <circle cx="234" cy="198" r="7" fill="#f2b33d" stroke="${INK}" stroke-width="4"/>
+  <circle cx="100" cy="196" r="13" fill="#f29b85" opacity="0.7"/>
+  <circle cx="200" cy="196" r="13" fill="#f29b85" opacity="0.7"/>
+  <path d="M104 132 Q120 124 138 130 M162 130 Q180 124 196 132" fill="none" stroke="#4a2c18" stroke-width="8" stroke-linecap="round"/>
+`;
+
+const MAMA_FACE = `
+  <path d="M110 152 l-8 -6 M190 152 l8 -6" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+  <path d="M146 176 Q150 194 160 186" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/>
+`;
+
+const MAMA_TOP = `
+  <path d="M66 156 Q60 72 150 62 Q240 72 234 156 Q218 114 180 106 Q160 128 122 112 Q90 118 66 156 Z" fill="${HAIR}" stroke="${INK}" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M100 96 Q124 78 156 76" fill="none" stroke="#8a5a3a" stroke-width="7" stroke-linecap="round"/>
+`;
+
+export const MAMA_LOOK: Look = { skin: MAMA_SKIN, sleeve: MAMA_SHIRT, torso: MAMA_TORSO, head: MAMA_HEAD, face: MAMA_FACE, top: MAMA_TOP };
+
+export class Pops extends Character {
+  constructor(x: number, y: number, scale = 1) {
+    super(POPS_LOOK, x, y, scale);
+  }
+}
+
+export class Mama extends Character {
+  constructor(x: number, y: number, scale = 1) {
+    super(MAMA_LOOK, x, y, scale);
+  }
 }

@@ -66,7 +66,7 @@ export function startScene(): Scene {
         goFullscreen();
         void navigator.storage?.persist?.().catch(() => undefined);
         ctx.sfx('pop');
-        ctx.go('hub', { params: { greet: true }, from: { x: 640, y: 400 } });
+        ctx.go('town', { params: { greet: true }, from: { x: 640, y: 400 } });
       };
       ctx.tap(hitAll, start);
       ctx.tap(button, start);

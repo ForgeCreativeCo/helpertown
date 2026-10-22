@@ -6,13 +6,16 @@ import { addPlay, isResting } from './core/session';
 import { Stage } from './core/stage';
 import { localDate, Store } from './core/storage';
 import { mountParent } from './parent';
+import { cookScene } from './scenes/cook';
 import { fetchScene } from './scenes/fetch';
 import { fixitScene } from './scenes/fixit';
 import { garageScene } from './scenes/garage';
 import { hubScene } from './scenes/hub';
+import { kitchenScene } from './scenes/kitchen';
 import { pausedScene, restScene } from './scenes/rest';
 import { startScene } from './scenes/start';
 import { toolwallScene } from './scenes/toolwall';
+import { townScene } from './scenes/town';
 
 /** Play only counts if he tapped within this long (idle time doesn't count). */
 const ACTIVE_WINDOW_MS = 60_000;
@@ -61,6 +64,9 @@ function boot(): void {
   scenes.register('fixit', fixitScene);
   scenes.register('toolwall', toolwallScene);
   scenes.register('garage', garageScene);
+  scenes.register('town', townScene);
+  scenes.register('kitchen', kitchenScene);
+  scenes.register('cook', cookScene);
   scenes.register('rest', restScene);
   scenes.register('paused', pausedScene);
   mountParent(app);

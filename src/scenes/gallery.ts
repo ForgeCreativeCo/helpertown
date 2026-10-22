@@ -1,5 +1,8 @@
-import { Pops, type PopsPose } from '../art/pops';
+import { Mama, Pops, type PopsPose } from '../art/characters';
+import { ingredientArt, magnetArt } from '../art/kitchen';
 import { addProblem } from '../art/problems';
+import { INGREDIENTS } from '../content/ingredients';
+import { MAGNETS } from '../content/magnets';
 import { vehicleArt } from '../art/vehicles';
 import { PROBLEMS } from '../content/problems';
 import { VEHICLES } from '../content/vehicles';
@@ -18,6 +21,34 @@ export function galleryScene(): Scene {
     mount(ctx) {
       const svg = stageSvg();
       svg.append(s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#efe3cf' }));
+      // `?gallery=kitchen`: every ingredient (top) and fridge magnet (bottom).
+      if (new URLSearchParams(location.search).get('gallery') === 'kitchen') {
+        INGREDIENTS.forEach((ing, i) => {
+          const g = s('g', {}, [ingredientArt(ing.id)]);
+          placeAt(g, { x: 90 + i * 155, y: 200, scale: 0.9 }, { x: 80, y: 80 });
+          svg.append(g);
+        });
+        MAGNETS.forEach((m, i) => {
+          const g = s('g', {}, [magnetArt(m.id)]);
+          placeAt(g, { x: 90 + i * 150, y: 470, scale: 1.2 }, { x: 50, y: 50 });
+          svg.append(g);
+        });
+        ctx.root.append(svg);
+        return;
+      }
+      // `?gallery=people`: every pose for Pops (top) and Mama (bottom).
+      if (new URLSearchParams(location.search).get('gallery') === 'people') {
+        const poses: PopsPose[] = ['idle', 'asking', 'pointing', 'thumbsUp', 'highFive', 'cheering', 'yawning', 'waving', 'holding'];
+        poses.forEach((p, i) => {
+          for (const [row, Who] of [Pops, Mama].entries()) {
+            const c = new Who(10 + i * 140, 40 + row * 330, 0.42);
+            c.pose(p, { x: 10 + i * 140 + 200, y: 300 + row * 330 });
+            svg.append(c.el);
+          }
+        });
+        ctx.root.append(svg);
+        return;
+      }
       // `?gallery=vehicles`: every vehicle, clean (top) and with a problem (bottom).
       if (new URLSearchParams(location.search).get('gallery') === 'vehicles') {
         const problems = PROBLEMS.map((p) => p.id);

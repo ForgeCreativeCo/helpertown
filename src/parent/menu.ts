@@ -1,11 +1,12 @@
 import { family } from '../config/family';
+import { getIngredient } from '../content/ingredients';
 import { expandLines, namedVariantId, spokenText, type LineGroup } from '../content/lines';
 import { STICKERS } from '../content/stickers';
 import { getTool } from '../content/tools';
 import { VEHICLES } from '../content/vehicles';
 import { blobs } from '../core/db';
 import { forgetPhoto, photoUrl, preparePhoto, type PhotoId } from '../core/photos';
-import { toolAccuracy } from '../core/progress';
+import { ingredientAccuracy, toolAccuracy } from '../core/progress';
 import type { App } from '../core/scenes';
 import { playedInLast } from '../core/session';
 import { DIFFICULTIES, localDate, SESSION_MINUTES, type DifficultySetting, type SessionMinutes } from '../core/storage';
@@ -25,6 +26,8 @@ const GROUP_LABELS: Record<LineGroup, string> = {
   sticker: 'Stickers',
   idle: 'Idle',
   winddown: 'Goodbye',
+  town: 'Town map',
+  kitchen: 'Mama’s Kitchen',
 };
 
 /** The parent menu. Everything here is for grown-ups, so it's plain text and form controls. */
@@ -303,7 +306,7 @@ function voicesSection(app: App, recorder: Recorder): HTMLElement {
 function progressSection(app: App): HTMLElement {
   const p = app.store.progress;
   const now = new Date();
-  const rounds = (id: 'fetch' | 'fixit' | 'toolwall') => String(p.rounds[id] ?? 0);
+  const rounds = (id: 'fetch' | 'fixit' | 'toolwall' | 'cook') => String(p.rounds[id] ?? 0);
   const collected = VEHICLES.filter((v) => p.garage[v.id]).length;
   return h('div', { class: 'grid' }, [
     h('div', { class: 'card' }, [
@@ -317,28 +320,37 @@ function progressSection(app: App): HTMLElement {
       h('p', { text: `Fetch the Tool: ${rounds('fetch')}` }),
       h('p', { text: `Fix It: ${rounds('fixit')}` }),
       h('p', { text: `Tool Wall: ${rounds('toolwall')}` }),
-      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds)` }),
+      h('p', { text: `Cooking with Mama: ${rounds('cook')}` }),
+      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length}` }),
     ]),
-    h('div', { class: 'card wide' }, [
-      h('h3', { text: 'Which tools he knows' }),
-      h('small', { text: 'First-try accuracy: how often he picked the right tool on his first tap.' }),
-      h(
-        'table',
-        {},
-        [
-          h('tr', {}, [h('th', { text: 'Tool' }), h('th', { text: 'Asked' }), h('th', { text: 'First try' })]),
-          ...toolAccuracy(p).map((r) =>
-            h('tr', {}, [
-              h('td', { text: getTool(r.tool).name }),
-              h('td', { text: String(r.asked) }),
-              h('td', {}, [
-                r.asked
-                  ? h('span', { class: 'bar' }, [h('span', { style: `width:${Math.round(r.accuracy * 120)}px` }), `${Math.round(r.accuracy * 100)}%`])
-                  : '—',
-              ]),
-            ]),
-          ),
-        ],
+    accuracyTable(
+      'Which tools he knows',
+      toolAccuracy(p).map((r) => ({ name: getTool(r.id).name, asked: r.asked, accuracy: r.accuracy })),
+    ),
+    accuracyTable(
+      'Which ingredients he knows',
+      ingredientAccuracy(p).map((r) => ({ name: getIngredient(r.id).name, asked: r.asked, accuracy: r.accuracy })),
+    ),
+  ]);
+}
+
+/** First-try accuracy as a small table (tools, ingredients). */
+function accuracyTable(title: string, rows: { name: string; asked: number; accuracy: number }[]): HTMLElement {
+  return h('div', { class: 'card wide' }, [
+    h('h3', { text: title }),
+    h('small', { text: 'First-try accuracy: how often he picked the right one on his first tap.' }),
+    h('table', {}, [
+      h('tr', {}, [h('th', { text: 'Name' }), h('th', { text: 'Asked' }), h('th', { text: 'First try' })]),
+      ...rows.map((r) =>
+        h('tr', {}, [
+          h('td', { text: r.name }),
+          h('td', { text: String(r.asked) }),
+          h('td', {}, [
+            r.asked
+              ? h('span', { class: 'bar' }, [h('span', { style: `width:${Math.round(r.accuracy * 120)}px` }), `${Math.round(r.accuracy * 100)}%`])
+              : '—',
+          ]),
+        ]),
       ),
     ]),
   ]);
@@ -369,7 +381,7 @@ function resetSection(app: App): HTMLElement {
     },
   });
   return h('div', { class: 'card' }, [
-    h('p', { text: 'Clears stickers, garage, tools learned, difficulty and time played. Settings, photos and recordings stay.' }),
+    h('p', { text: 'Clears stickers, fridge magnets, garage, what he’s learned, difficulty and time played. Settings, photos and recordings stay.' }),
     btn,
     status,
   ]);

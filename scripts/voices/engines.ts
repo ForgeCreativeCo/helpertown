@@ -2,7 +2,8 @@ import { ElevenLabsClient, ElevenLabsError } from '@elevenlabs/elevenlabs-js';
 import { spawn } from 'node:child_process';
 import { existsSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { CACHE_DIR, DEFAULT_ELEVEN_VOICE, DEFAULT_PIPER_VOICE, PIPER_LENGTH_SCALE, piperPaths } from './config.ts';
+import type { Speaker } from '../../src/content/lines.ts';
+import { CACHE_DIR, DEFAULT_ELEVEN_VOICES, DEFAULT_PIPER_VOICE, PIPER_LENGTH_SCALE, piperPaths } from './config.ts';
 
 export interface SynthJob {
   text: string;
@@ -105,8 +106,12 @@ const ELEVEN_RATE = 22050;
  * the game itself never talks to it. Needs ELEVENLABS_API_KEY and a voice id
  * (ELEVENLABS_VOICE_ID or --voice), usually set in .env.local.
  */
-function elevenlabs(voiceArg?: string): Engine {
-  const voice = voiceArg || process.env.ELEVENLABS_VOICE_ID || DEFAULT_ELEVEN_VOICE;
+function elevenlabs(voiceArg?: string, speaker: Speaker = 'pops'): Engine {
+  const voice =
+    voiceArg ||
+    process.env[`ELEVENLABS_VOICE_${speaker.toUpperCase()}`] ||
+    (speaker === 'pops' ? process.env.ELEVENLABS_VOICE_ID : undefined) ||
+    DEFAULT_ELEVEN_VOICES[speaker];
   const model = process.env.ELEVENLABS_MODEL || 'eleven_v4';
   return {
     name: `elevenlabs (${voice || 'no voice'}, ${model})`,
@@ -160,7 +165,8 @@ export async function listElevenVoices(): Promise<void> {
   }
 }
 
-export const ENGINES: Record<string, (voice?: string) => Engine> = {
+/** Makes an engine for one speaker. Piper and SAPI use the same voice for everyone. */
+export const ENGINES: Record<string, (voice?: string, speaker?: Speaker) => Engine> = {
   piper,
   sapi: () => sapi(),
   elevenlabs,

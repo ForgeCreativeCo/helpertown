@@ -66,8 +66,8 @@ describe('stats', () => {
     const p = fresh();
     recordToolAnswer(p, 'wrench', true);
     recordToolAnswer(p, 'wrench', false);
-    const wrench = toolAccuracy(p).find((r) => r.tool === 'wrench')!;
-    expect(wrench).toEqual({ tool: 'wrench', asked: 2, accuracy: 0.5 });
+    const wrench = toolAccuracy(p).find((r) => r.id === 'wrench')!;
+    expect(wrench).toEqual({ id: 'wrench', asked: 2, accuracy: 0.5 });
   });
 
   it('counts rounds per activity', () => {

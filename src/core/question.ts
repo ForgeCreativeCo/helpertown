@@ -1,4 +1,4 @@
-import type { Pops } from '../art/pops';
+import type { Character } from '../art/characters';
 import { bounce, wiggle } from './anim';
 import { IDLE_STEPS, wrongTapResponse } from './errorless';
 import { addGlow } from './glow';
@@ -24,12 +24,14 @@ export interface Choice {
 export interface QuestionOptions {
   promptLine: string;
   choices: Choice[];
-  pops: Pops;
+  pops: Character;
   svg: SVGSVGElement;
   /** Don't speak the prompt right away (it's only repeated if he goes idle). */
   silentStart?: boolean;
   /** Show the hint glow from the start ("tap the glowing spot"). */
   glowFromStart?: boolean;
+  /** The idle check-in line (default Pops' "Are you still there?"). */
+  stillThereLine?: string;
 }
 
 export interface QuestionResult {
@@ -89,7 +91,7 @@ export function askQuestion(ctx: SceneContext, q: QuestionOptions): Promise<Ques
   const pause = async () => {
     paused = true;
     clearIdle();
-    await ctx.speak('idle.stillThere', { replaceQueued: true });
+    await ctx.speak(q.stillThereLine ?? 'idle.stillThere', { replaceQueued: true });
     await showPause(ctx, q.svg);
     paused = false;
     prompt();

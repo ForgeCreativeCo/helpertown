@@ -68,7 +68,7 @@ export function restScene(): Scene {
 
       // A new day starts the game fresh.
       const check = () => {
-        if (!isResting(ctx.app.store.progress, localDate())) ctx.go('hub', { params: { greet: true } });
+        if (!isResting(ctx.app.store.progress, localDate())) ctx.go('town', { params: { greet: true } });
         else ctx.after(60_000, check);
       };
       ctx.after(60_000, check);
