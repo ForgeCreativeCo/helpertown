@@ -44,6 +44,8 @@ export class Input {
   private anyTap = new Set<() => void>();
   private activeHold: { pointerId: number; target: HoldTarget; raf: number } | null = null;
   private debugLayer: HTMLElement | null = null;
+  /** performance.now() of the last accepted tap (0 = none yet). The play clock uses it. */
+  lastTapAt = 0;
   private toLogical: (x: number, y: number) => { x: number; y: number };
 
   constructor(root: HTMLElement, toLogical: (x: number, y: number) => { x: number; y: number }) {
@@ -53,8 +55,12 @@ export class Input {
     root.addEventListener('pointerup', (e) => this.onUp(e), opts);
     root.addEventListener('pointercancel', (e) => this.onUp(e), opts);
     root.addEventListener('pointermove', (e) => this.onMove(e), opts);
-    // No long-press menus, double-tap zoom, pinch, text selection or dragging.
-    const block = (e: Event) => e.preventDefault();
+    // No long-press menus, double-tap zoom, pinch, text selection or dragging,
+    // except inside the parent menu ([data-native]), which needs scrolling and typing.
+    const native = (e: Event) => e.target instanceof Element && !!e.target.closest('[data-native]');
+    const block = (e: Event) => {
+      if (!native(e)) e.preventDefault();
+    };
     for (const type of ['contextmenu', 'dblclick', 'gesturestart', 'gesturechange', 'selectstart', 'dragstart']) {
       document.addEventListener(type, block, { passive: false });
     }
@@ -62,7 +68,7 @@ export class Input {
     document.addEventListener(
       'touchstart',
       (e) => {
-        if (e.touches.length > 1) e.preventDefault();
+        if (e.touches.length > 1 && !native(e)) e.preventDefault();
       },
       { passive: false },
     );
@@ -173,6 +179,7 @@ export class Input {
     if (reason || !target) return;
 
     const logical = this.toLogical(p.x, p.y);
+    this.lastTapAt = performance.now();
     for (const fn of this.anyTap) fn();
     try {
       target.onTap({ x: logical.x, y: logical.y, target: target.el });

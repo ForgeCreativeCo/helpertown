@@ -6,10 +6,12 @@ import type { Track } from './difficulty';
 
 /** Settings and progress, kept in localStorage as one versioned record. */
 export const STORAGE_KEY = 'helper-town';
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 export type DifficultySetting = 'auto' | 2 | 3 | 4;
 export type SessionMinutes = 0 | 10 | 15 | 20 | 30;
+export const DIFFICULTIES: readonly DifficultySetting[] = ['auto', 2, 3, 4];
+export const SESSION_MINUTES: readonly SessionMinutes[] = [0, 10, 15, 20, 30];
 
 export interface Settings {
   childName: string;
@@ -49,6 +51,17 @@ export interface Progress {
   stickers: StickerId[];
   /** Fixed vehicles in his garage; fixing one again adds a star. */
   garage: Partial<Record<VehicleId, { stars: number }>>;
+  /** Today's play session, for the wind-down. */
+  session: SessionData;
+}
+
+export interface SessionData {
+  /** Local date (YYYY-MM-DD) this session belongs to. */
+  date: string;
+  /** Active play time in this session. */
+  ms: number;
+  /** Wound down for the day; the resting screen shows until tomorrow or a grown-up resets it. */
+  resting: boolean;
 }
 
 export interface SaveData {
@@ -69,7 +82,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {} },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false } },
   };
 }
 
@@ -78,7 +91,13 @@ export function defaultSave(): SaveData {
  * changes shape: MIGRATIONS[n] turns a version-n record into version n+1.
  */
 type AnyRecord = Record<string, unknown>;
-export const MIGRATIONS: Record<number, (data: AnyRecord) => AnyRecord> = {};
+export const MIGRATIONS: Record<number, (data: AnyRecord) => AnyRecord> = {
+  // v1 saves made before the child's name was set stored ''. Pick up the family name.
+  1: (data) => {
+    const settings = isObject(data.settings) ? data.settings : {};
+    return settings.childName === '' ? { ...data, settings: { ...settings, childName: family.childName } } : data;
+  },
+};
 
 function isObject(v: unknown): v is AnyRecord {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -101,9 +120,14 @@ export function migrate(raw: unknown, migrations = MIGRATIONS, target = SAVE_VER
   }
   const settings = isObject(data.settings) ? data.settings : {};
   const progress = isObject(data.progress) ? data.progress : {};
+  const picked = pickValid(settings, base.settings);
+  // Fixed-difficulty and session settings have a few allowed values of mixed types.
+  if (DIFFICULTIES.includes(settings.difficulty as DifficultySetting)) picked.difficulty = settings.difficulty as DifficultySetting;
+  else delete picked.difficulty;
+  if (!SESSION_MINUTES.includes(settings.sessionMinutes as SessionMinutes)) delete picked.sessionMinutes;
   return {
     version: target,
-    settings: { ...base.settings, ...pickValid(settings, base.settings) },
+    settings: { ...base.settings, ...picked },
     progress: { ...base.progress, ...pickValid(progress, base.progress) },
   };
 }

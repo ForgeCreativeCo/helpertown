@@ -37,6 +37,8 @@ export interface App {
   audio: Audio;
   store: Store;
   scenes: SceneManager;
+  /** True while the grown-ups check or parent menu is open (play time doesn't count). */
+  parentOpen: boolean;
 }
 
 /**
@@ -93,6 +95,8 @@ export interface GoOptions {
   from?: { x: number; y: number };
   /** Skip the transition (first scene only). */
   instant?: boolean;
+  /** If a transition is running, go once it ends instead of ignoring the call. */
+  queue?: boolean;
 }
 
 interface Mounted {
@@ -109,6 +113,7 @@ export class SceneManager {
   private factories = new Map<string, SceneFactory>();
   private current: Mounted | null = null;
   private transitioning = false;
+  private pending: { id: string; opts: GoOptions } | null = null;
   private app!: App;
   currentId: string | null = null;
 
@@ -124,9 +129,15 @@ export class SceneManager {
     return this.transitioning;
   }
 
-  /** Changes scene. Calls made while a transition is running are ignored (mash-proof). */
+  /**
+   * Changes scene. Calls made while a transition is running are ignored
+   * (mash-proof), unless `queue` is set: then it runs once the transition ends.
+   */
   go(id: string, opts: GoOptions = {}): void {
-    if (this.transitioning) return;
+    if (this.transitioning) {
+      if (opts.queue) this.pending = { id, opts };
+      return;
+    }
     const factory = this.factories.get(id);
     if (!factory) {
       console.error(`Unknown scene: ${id}`);
@@ -138,6 +149,9 @@ export class SceneManager {
     void this.run(id, factory, opts).finally(() => {
       this.transitioning = false;
       input.unlock();
+      const next = this.pending;
+      this.pending = null;
+      if (next) this.go(next.id, next.opts);
     });
   }
 

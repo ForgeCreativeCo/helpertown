@@ -12,7 +12,7 @@ import { VEHICLES } from './vehicles';
  * have `plain`, a name-free version that plays whenever no matching named
  * voice file exists.
  */
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown';
 
 export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count';
 
@@ -76,6 +76,14 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'garage.empty', group: 'garage', text: "Your garage is empty! Let's go fix some trucks!" },
   { id: 'garage.name', group: 'garage', text: '{vehicle}!', vars: ['vehicle'] },
   { id: 'nav.home', group: 'hub', text: 'Back to the workshop!' },
+
+  // Session wind-down
+  {
+    id: 'winddown.goodbye',
+    group: 'winddown',
+    text: 'Great work today, {child}! {grandpa} needs a nap. See you next time!',
+    plain: 'Great work today! Time for a nap. See you next time!',
+  },
 ];
 
 export const PRAISE_LINES = ['praise.thanks', 'praise.justRight', 'praise.quick', 'praise.greatHelping'] as const;

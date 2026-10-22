@@ -4,6 +4,7 @@ import {
   carLift,
   coffeeMug,
   FLOOR,
+  garageCurtain,
   garageDoor,
   pegboard,
   radio,
@@ -15,7 +16,11 @@ import {
 } from '../art/workshop';
 import { lineId } from '../content/lines';
 import type { StickerId } from '../content/stickers';
-import { bounce, breathe, placeAt, popIn, wiggle } from '../core/anim';
+import { bounce, breathe, finished, placeAt, popIn, wiggle } from '../core/anim';
+import { photoUrl } from '../core/photos';
+import { isResting, startRest, timeUp } from '../core/session';
+import { localDate } from '../core/storage';
+import { woodFrame } from '../art/frames';
 import type { Scene, SceneContext } from '../core/scenes';
 import { hitGroup, s, stageSvg } from '../core/svg';
 
@@ -42,8 +47,14 @@ export function hubScene(): Scene {
     backdrop: FLOOR,
     mount(ctx) {
       const svg = stageSvg();
-      svg.append(workshopBackground());
+      const wall = s('g');
+      svg.append(workshopBackground(), wall);
       ctx.root.append(svg);
+
+      // The real Pops, framed on the wall (if a photo was added).
+      void ctx.guard(photoUrl('pops')).then((url) => {
+        if (url) wall.append(woodFrame(url, 784, 70, 150, 124));
+      });
 
       // Pops stands behind the workbench; the lift and toolbox sit in front of it.
       const back = s('g');
@@ -105,8 +116,53 @@ export function hubScene(): Scene {
       });
 
       if (ctx.params.greet) ctx.after(250, () => void ctx.speak('start.hello'));
+
+      // Session wind-down: rest if today's session is over; otherwise keep an eye on the clock.
+      const progress = ctx.progress;
+      if (isResting(progress, localDate())) {
+        ctx.go('rest', { instant: true, queue: true });
+        return;
+      }
+      const watch = () => {
+        if (timeUp(progress, ctx.app.store.settings.sessionMinutes, localDate())) void windDown(ctx, svg, pops);
+        else ctx.after(5000, watch);
+      };
+      ctx.after(ctx.params.greet ? 4000 : 900, watch);
     },
   };
+}
+
+/**
+ * Time's up: the lights dim, Pops yawns and waves goodbye, and the garage door
+ * slowly rolls down. Then the game rests until tomorrow.
+ */
+async function windDown(ctx: SceneContext, svg: SVGSVGElement, pops: Pops): Promise<void> {
+  const { input, audio } = ctx.app;
+  input.lock();
+  ctx.onCleanup(() => input.unlock());
+  audio.clearQueue();
+  audio.pauseMusic(true);
+
+  const { interior, curtain } = garageCurtain();
+  interior.style.opacity = '0';
+  const dim = s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#0b1630', opacity: 0, class: 'no-hit' });
+  svg.append(interior, curtain, dim);
+  dim.animate([{ opacity: 0 }, { opacity: 0.5 }], { duration: 3500, easing: 'ease-in-out', fill: 'forwards' });
+  interior.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 600, fill: 'forwards' });
+
+  pops.pose('yawning');
+  await ctx.wait(1500);
+  pops.pose('waving');
+  const goodbye = ctx.speak('winddown.goodbye');
+  ctx.keep(pops.body.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(2deg)' }, { transform: 'rotate(-2deg)' }, { transform: 'rotate(0deg)' }], { duration: 1600, iterations: Infinity }));
+  const close = curtain.animate([{ transform: 'scaleY(0)' }, { transform: 'scaleY(1)' }], { duration: 4000, easing: 'ease-in-out', fill: 'forwards' });
+  await goodbye;
+  await ctx.guard(finished(close));
+
+  startRest(ctx.progress, localDate());
+  ctx.save();
+  await ctx.wait(900);
+  ctx.go('rest');
 }
 
 /** Small loops that make the workshop feel alive. Slow, gentle, transform/opacity only. */

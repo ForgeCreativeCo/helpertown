@@ -119,3 +119,312 @@ svg {
   stroke-width: 5px !important;
   stroke-dasharray: 3 9;
 }
+
+/* ---------- Parent gear (top-right, faint, hold for 3 seconds) ---------- */
+#gear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 64px;
+  height: 64px;
+  opacity: 0.32;
+  touch-action: none;
+  transition: opacity 200ms;
+}
+
+#gear.holding {
+  opacity: 0.9;
+}
+
+#gear svg {
+  display: block;
+  pointer-events: none;
+}
+
+/* ---------- Grown-ups check and parent menu (the only screens with text) ---------- */
+.parent-check,
+.parent-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  font-size: 18px;
+  line-height: 1.4;
+  color: #2b1d14;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.parent-check *,
+.parent-menu * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.parent-check {
+  display: grid;
+  place-items: center;
+  background: rgba(20, 12, 6, 0.75);
+  touch-action: manipulation;
+}
+
+.check-card {
+  background: #fff8e8;
+  border-radius: 20px;
+  padding: 24px 28px;
+  max-width: 560px;
+  text-align: center;
+}
+
+.check-card h2 {
+  margin: 0 0 6px;
+}
+
+.check-squares {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+
+.check-square {
+  width: 84px;
+  height: 84px;
+  border-radius: 14px;
+  border: 5px solid #2b1d14;
+  cursor: pointer;
+}
+
+.check-square.hit {
+  outline: 5px solid #fff3a0;
+}
+
+.parent-menu {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  background: #f4ead8;
+  padding: 0 0 48px;
+}
+
+.parent-menu header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  background: #5b3a24;
+  color: #fff8e8;
+}
+
+.parent-menu h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.parent-menu nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px 0;
+}
+
+.parent-menu section {
+  padding: 8px 20px;
+  max-width: 980px;
+}
+
+.parent-menu h2 {
+  margin: 18px 0 8px;
+}
+
+.parent-menu h3 {
+  margin: 0 0 6px;
+}
+
+.parent-menu button,
+.check-card button {
+  font: inherit;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #5b3a24;
+  background: #fff8e8;
+  color: #2b1d14;
+  cursor: pointer;
+}
+
+.parent-menu button.primary {
+  background: #3fae5a;
+  border-color: #226b35;
+  color: #fff;
+}
+
+.parent-menu button.danger {
+  background: #e4473b;
+  border-color: #a82a20;
+  color: #fff;
+}
+
+.parent-menu button.recording {
+  background: #e4473b;
+  color: #fff;
+}
+
+.parent-menu button:disabled {
+  opacity: 0.45;
+}
+
+.check-card button.link {
+  border: 0;
+  background: none;
+  text-decoration: underline;
+}
+
+.parent-menu .card {
+  background: #fff8e8;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.parent-menu .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.parent-menu .wide {
+  grid-column: 1 / -1;
+}
+
+.parent-menu .field {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+
+.parent-menu .field.inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.parent-menu input[type='text'],
+.parent-menu select {
+  font: inherit;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 2px solid #b8a080;
+  max-width: 360px;
+}
+
+.parent-menu input[type='range'] {
+  max-width: 360px;
+}
+
+.parent-menu input[type='checkbox'] {
+  width: 26px;
+  height: 26px;
+}
+
+.parent-menu small {
+  color: #6b5a48;
+}
+
+.parent-menu .note {
+  background: #fff3c4;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.parent-menu .warn {
+  background: #ffd9d4;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.parent-menu .row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.parent-menu details {
+  background: #fff8e8;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  padding: 4px 14px;
+}
+
+.parent-menu summary {
+  padding: 10px 0;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.parent-menu .voice-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid #eadcc4;
+}
+
+.parent-menu .badge {
+  margin-left: 8px;
+  font-size: 13px;
+  background: #3fae5a;
+  color: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+}
+
+.parent-menu .photo-frame {
+  width: 200px;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eadcc4;
+  margin: 8px 0;
+  display: grid;
+  place-items: center;
+}
+
+.parent-menu .photo-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.parent-menu table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.parent-menu th,
+.parent-menu td {
+  text-align: left;
+  padding: 6px 4px;
+  border-bottom: 1px solid #eadcc4;
+}
+
+.parent-menu .bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.parent-menu .bar span {
+  display: inline-block;
+  height: 12px;
+  max-width: 120px;
+  min-width: 2px;
+  background: #3fae5a;
+  border-radius: 6px;
+}

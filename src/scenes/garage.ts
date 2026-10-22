@@ -1,12 +1,15 @@
+import { hardHatPhoto } from '../art/frames';
 import { INK } from '../art/palette';
 import { starPath } from '../art/stickers';
 import { addPlate, vehicleArt, VEHICLE_H, VEHICLE_W } from '../art/vehicles';
 import { GARAGE_SPOTS, garageBackground, homeButton } from '../art/workshop';
-import { family } from '../config/family';
 import { lineId } from '../content/lines';
 import { VEHICLES } from '../content/vehicles';
 import { bounce, breathe, wiggle } from '../core/anim';
+import { photoUrl } from '../core/photos';
 import type { Scene } from '../core/scenes';
+import { timeUp } from '../core/session';
+import { localDate } from '../core/storage';
 import { s, stageSvg } from '../core/svg';
 
 const SCALE = 0.5;
@@ -25,7 +28,7 @@ export function garageScene(): Scene {
       ctx.root.append(svg);
 
       const { garage } = ctx.progress;
-      const initial = (ctx.app.store.settings.childName || family.childName).charAt(0);
+      const initial = ctx.app.store.settings.childName.trim().charAt(0);
       VEHICLES.forEach((v, i) => {
         const spot = GARAGE_SPOTS[i]!;
         const art = vehicleArt(v.id);
@@ -63,6 +66,21 @@ export function garageScene(): Scene {
         ctx.app.input.lock();
         ctx.onCleanup(() => ctx.app.input.unlock());
       });
+
+      // His photo in a hard hat, if one was added.
+      void ctx.guard(photoUrl('child')).then((url) => {
+        if (!url) return;
+        const frame = hardHatPhoto(url, 1010, 128, 66);
+        svg.append(frame);
+        ctx.keep(breathe(frame, 0.03, 2600));
+      });
+
+      // No rounds here, so if the session ends, head back to the workshop to wind down.
+      const watch = () => {
+        if (timeUp(ctx.progress, ctx.app.store.settings.sessionMinutes, localDate())) ctx.go('hub');
+        else ctx.after(5000, watch);
+      };
+      ctx.after(5000, watch);
 
       const any = VEHICLES.some((v) => garage[v.id]);
       ctx.after(300, () => void ctx.speak(any ? 'garage.welcome' : 'garage.empty'));

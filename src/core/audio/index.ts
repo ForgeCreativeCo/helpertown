@@ -3,6 +3,7 @@ import { getLine, spokenText, voiceCandidates, type Names } from '../../content/
 import { blobs } from '../db';
 import { AudioEngine } from './engine';
 import { Sfx, type SfxName } from './sfx';
+import { Music } from './music';
 import { Speech } from './speech';
 import { voiceSources, type VoiceSource } from './sources';
 import { VoiceQueue, type SpeakOptions, type SpeakResult } from './voiceQueue';
@@ -19,6 +20,10 @@ export class Audio {
   private sfxPlayer = new Sfx(() =>
     this.engine.ctx && this.engine.sfxGain ? { ctx: this.engine.ctx, out: this.engine.sfxGain } : null,
   );
+  private music = new Music(() =>
+    this.engine.ctx && this.engine.sfxGain ? { ctx: this.engine.ctx, out: this.engine.sfxGain } : null,
+  );
+  private musicOn = false;
   private parentIds = new Set<string>();
   private cache = new Map<string, Promise<AudioBuffer>>();
   private names: Names = { child: '', grandpa: '' };
@@ -52,6 +57,23 @@ export class Audio {
     for (const key of [...this.cache.keys()]) if (key.startsWith('parent:')) this.cache.delete(key);
   }
 
+  hasParentRecording(id: string): boolean {
+    return this.parentIds.has(id);
+  }
+
+  /** Background music on or off (it only plays once audio is unlocked). */
+  setMusic(on: boolean): void {
+    this.musicOn = on;
+    if (on && this.engine.ctx) this.music.start();
+    else this.music.stop();
+  }
+
+  /** Quiet the music without changing the setting (wind-down, rest). */
+  pauseMusic(paused: boolean): void {
+    if (paused || !this.musicOn) this.music.stop();
+    else this.setMusic(true);
+  }
+
   setNames(names: Names): void {
     this.names = names;
   }
@@ -64,6 +86,7 @@ export class Audio {
   unlock(): void {
     this.engine.unlock();
     this.speech.unlock();
+    if (this.musicOn) this.music.start();
   }
 
   /** Called on every tap so a suspended context comes back. */

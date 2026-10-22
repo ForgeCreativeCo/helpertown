@@ -1,8 +1,10 @@
+import { woodFrame } from '../art/frames';
 import type { Pops } from '../art/pops';
 import { stickerArt } from '../art/stickers';
 import { lineId } from '../content/lines';
 import type { StickerId } from '../content/stickers';
 import { bounce, flyArc, placeAt, popIn } from './anim';
+import { photoUrl } from './photos';
 import type { SceneContext } from './scenes';
 import { s } from './svg';
 
@@ -48,6 +50,14 @@ function confetti(svg: SVGSVGElement): void {
 }
 
 export async function celebrate(ctx: SceneContext, o: CelebrateOptions): Promise<void> {
+  // The real Pops (if there's a photo) pops up and bounces along.
+  void ctx.guard(photoUrl('pops')).then((url) => {
+    if (!url) return;
+    const frame = woodFrame(url, 1020, 70, 190, 160);
+    o.svg.append(frame);
+    popIn(frame, 500);
+    for (let i = 1; i <= 3; i++) ctx.after(i * 650, () => bounce(frame, 26));
+  });
   o.pops.pose('cheering');
   confetti(o.svg);
   ctx.sfx('fanfare');

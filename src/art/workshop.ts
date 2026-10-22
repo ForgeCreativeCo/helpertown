@@ -295,6 +295,23 @@ export function homeButton(cx: number, cy: number): SVGGElement {
   `);
 }
 
+/**
+ * For the wind-down: the hub's garage door rolls open (dark inside) and then
+ * slowly back down. Animate `curtain` from scaleY(0) to scaleY(1).
+ */
+export function garageCurtain(): { interior: SVGGElement; curtain: SVGGElement } {
+  const interior = fromMarkup(`<rect x="1007" y="180" width="220" height="510" fill="#2f343b"/>`);
+  const slats: string[] = [];
+  for (let y = 186; y + 50 <= 690; y += 58) {
+    slats.push(`<rect x="1012" y="${y}" width="210" height="50" rx="6" fill="#e9eef2" stroke="${INK}" stroke-width="5"/>`);
+  }
+  const curtain = fromMarkup(`<rect x="1007" y="180" width="220" height="510" fill="#c9d1d8"/>${slats.join('')}`);
+  curtain.style.transformBox = 'fill-box';
+  curtain.style.transformOrigin = '50% 0%';
+  curtain.style.transform = 'scaleY(0)';
+  return { interior, curtain };
+}
+
 /** The close-up bench for Fetch the Tool: wall behind, a long bench in front. */
 export function benchScene(): { back: SVGGElement; bench: SVGGElement } {
   const back = fromMarkup(`

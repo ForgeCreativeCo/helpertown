@@ -4,7 +4,7 @@ A tap-only learning game for a little helper who can't read yet. He's Pops' help
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** Milestone 3. Start screen, the workshop hub with Pops, **Fetch the Tool**, **Fix It**, **Tool Wall** and **My Garage**, celebrations, toolbox stickers, adaptive difficulty and generated voices. The parent menu and the session wind-down come next.
+**Status:** Milestone 4. Start screen, the workshop hub with Pops, **Fetch the Tool**, **Fix It**, **Tool Wall** and **My Garage**, celebrations, toolbox stickers, adaptive difficulty, generated voices, the **parent menu** and the **session wind-down**. Polish, offline checks and the Netlify deploy come next.
 
 ## Running locally
 
@@ -37,7 +37,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
 - In dev, `?gallery` shows every Pops pose, tool and sticker on one page, and `?gallery=vehicles` shows every vehicle, clean and with a problem.
-- Progress (tools learned, difficulty, stickers) is saved on the device. Until the parent menu lands (Milestone 4), reset it by clearing the site's data in the browser settings.
+- Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
 ## How it's built
 
@@ -115,6 +115,20 @@ Only problems for tools he has met in Fetch the Tool come up, so the repair bay 
 
 Tap the pegboard. Pops holds up a tool ("Where does the hammer go?") and he taps its painted outline on the pegboard. A round hangs 4 tools (5 at the top level), starting with the ones he has met in Fetch the Tool. Each question shows the right outline plus 1–3 others still empty, set by difficulty. A wrong outline says whose spot it is ("That spot is for the saw!"), with the same errorless help as everywhere else. The right tool arcs over and clicks onto its pegs. When the wall is full: "All tidy! High five!", and a sticker for the toolbox.
 
+### Parent menu
+
+**Opening it:** hold the small, faint gear in the top-right corner for 3 seconds (a ring fills), then tap the named colored square two times. A tap, a short hold, sliding off, or a second finger/palm cancels the hold, and a wrong square closes the check, so toddler taps can't get in. The game stops behind the menu; **Back to the game** returns to the workshop and starts a fresh session.
+
+- **Settings:** child's name, grandpa's name (Pops or Pappa), difficulty (Auto, or always 2, 3 or 4 choices), session length (off, 10, 15, 20 or 30 minutes; default 15), voice and effects volume, and gentle background music (off by default).
+- **Photos:** add or remove a photo of the real Pops (framed on the workshop wall, and popping up in every celebration) and of your helper (in a hard-hat frame in his garage). Photos are shrunk and kept on this tablet. Bundled files in `public/family/` work too (see below).
+- **Voices:** every line, grouped by activity, with Record, Play and Delete. A recording replaces the generated voice for that line. Recording needs the microphone, which browsers only allow on a secure page: the installed Netlify app, `npm run dev:https`, or `localhost`. Recordings stay on that one tablet; to share them across tablets, bundle them (see "Adding bundled recordings").
+- **Progress:** time played today and this week (active play only), rounds per activity, garage and sticker counts, and first-try accuracy per tool.
+- **Reset:** clears progress after a second confirming tap. Settings, photos and recordings stay.
+
+### Session wind-down
+
+Only active play counts (the app must be visible, with a tap in the last minute). When the session length is up, he finishes the round he's in. Back in the workshop the lights dim, Pops yawns and waves, the garage door rolls down, and Pops says goodbye ("Great work today, Lincoln! Pops needs a nap. See you next time!"). Then a calm night-time resting screen stays up until the next day or until a grown-up opens the menu. Reloading the page doesn't skip it.
+
 ### My Garage
 
 Tap the garage door. There's a parking spot for each of the 8 vehicles. The ones he has fixed are parked with his initial on their license plates and a gold star for each extra time he fixed them. Empty spots show a faint dotted outline of the vehicle, never a lock. Tapping a vehicle says its name, plays its honk or siren and moves its part. The green house button takes him back to the workshop.
@@ -141,7 +155,7 @@ Record each line on a phone, save it as mono mp3 (or ogg/m4a), name it by its li
 
 ## Adding bundled photos
 
-Put `pops.jpg` and/or `child.jpg` (or `.png`/`.webp`) in `public/family/`, then rebuild.
+Put `pops.jpg` and/or `child.jpg` (or `.png`/`.webp`) in `public/family/`, then rebuild. A photo added in the parent menu takes priority on that tablet.
 
 ## Generating voices
 

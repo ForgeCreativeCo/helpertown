@@ -1,16 +1,21 @@
 import './styles.css';
-import { family } from './config/family';
 import { Audio } from './core/audio';
 import { Input } from './core/input';
 import { SceneManager, type App } from './core/scenes';
+import { addPlay, isResting } from './core/session';
 import { Stage } from './core/stage';
-import { Store } from './core/storage';
+import { localDate, Store } from './core/storage';
+import { mountParent } from './parent';
 import { fetchScene } from './scenes/fetch';
 import { fixitScene } from './scenes/fixit';
 import { garageScene } from './scenes/garage';
 import { hubScene } from './scenes/hub';
+import { pausedScene, restScene } from './scenes/rest';
 import { startScene } from './scenes/start';
 import { toolwallScene } from './scenes/toolwall';
+
+/** Play only counts if he tapped within this long (idle time doesn't count). */
+const ACTIVE_WINDOW_MS = 60_000;
 
 function boot(): void {
   const viewport = document.getElementById('viewport')!;
@@ -19,12 +24,12 @@ function boot(): void {
   const store = new Store();
   const audio = new Audio();
   const scenes = new SceneManager();
-  const app: App = { stage, input, audio, store, scenes };
+  const app: App = { stage, input, audio, store, scenes, parentOpen: false };
 
   const { settings } = store;
   audio.setVolumes(settings.voiceVolume, settings.sfxVolume);
-  // A save from before the name was set holds '', so fall back to the family config.
-  audio.setNames({ child: settings.childName || family.childName, grandpa: settings.grandpaName });
+  audio.setNames({ child: settings.childName, grandpa: settings.grandpaName });
+  audio.setMusic(settings.music);
   void audio.refreshParentRecordings();
   input.onAnyTap(() => audio.wake());
 
@@ -38,6 +43,17 @@ function boot(): void {
     (window as unknown as { helperTown: App }).helperTown = app;
   }
 
+  // The play clock: counts active play toward today's total and the session.
+  let ticks = 0;
+  setInterval(() => {
+    if (document.hidden || app.parentOpen || !input.lastTapAt) return;
+    if (performance.now() - input.lastTapAt > ACTIVE_WINDOW_MS) return;
+    const today = localDate();
+    if (isResting(store.progress, today)) return;
+    addPlay(store.progress, 1000, today);
+    if (++ticks % 10 === 0) store.save();
+  }, 1000);
+
   scenes.bind(app);
   scenes.register('start', startScene);
   scenes.register('hub', hubScene);
@@ -45,6 +61,9 @@ function boot(): void {
   scenes.register('fixit', fixitScene);
   scenes.register('toolwall', toolwallScene);
   scenes.register('garage', garageScene);
+  scenes.register('rest', restScene);
+  scenes.register('paused', pausedScene);
+  mountParent(app);
 
   // Dev only: `?gallery` shows every piece of art for checking.
   if (import.meta.env.DEV && new URLSearchParams(location.search).has('gallery')) {
