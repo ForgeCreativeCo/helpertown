@@ -32,6 +32,8 @@ const GROUP_LABELS: Record<LineGroup, string> = {
   post: 'Post Office',
   letters: 'Letters and his name',
   numbers: 'House numbers',
+  rescue: 'Rescue Station',
+  dino: 'Dino Dig',
 };
 
 /** The parent menu. Everything here is for grown-ups, so it's plain text and form controls. */
@@ -327,7 +329,9 @@ function progressSection(app: App): HTMLElement {
       h('p', { text: `Cooking with Mama: ${rounds('cook')}` }),
       h('p', { text: `Baking muffins: ${rounds('bake')} · Decorating cookies: ${rounds('decorate')}` }),
       h('p', { text: `Letter mail: ${rounds('letters')} · Name sign: ${rounds('namesign')} · Number houses: ${rounds('houses')}` }),
-      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length} · Bakery shelf: ${p.bakery.length} · Stamps: ${p.stamps.length}` }),
+      h('p', { text: `Who can help: ${rounds('dispatch')} · Siren sounds: ${rounds('sirens')} · Fire hose: ${rounds('flames')}` }),
+      h('p', { text: `Digging: ${rounds('dig')} · Big and little: ${rounds('sizes')} · Dino puzzles: ${rounds('puzzle')}` }),
+      h('p', { text: `Garage: ${collected} of ${VEHICLES.length} vehicles · Stickers: ${p.stickers.length} (${STICKERS.length} kinds) · Fridge magnets: ${p.magnets.length} · Bakery shelf: ${p.bakery.length} · Stamps: ${p.stamps.length} · Badges: ${p.badges.length} · Fossils: ${p.fossils.length}` }),
     ]),
     accuracyTable(
       'Which tools he knows',

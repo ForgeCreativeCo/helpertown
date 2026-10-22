@@ -2,7 +2,11 @@ import { Mama, Pops, type PopsPose } from '../art/characters';
 import { cookieArt, crackedEggArt, decoArt, eggArt, fruitPieceArt, muffinArt, muffinTin, oven } from '../art/bakery';
 import { ingredientArt, magnetArt } from '../art/kitchen';
 import { bigMailbox, envelopeArt, letterTileArt, mailTruck, myMailbox, numberHouse, packageArt, postOfficeBuilding, stampArt } from '../art/post';
+import { dinoArt, dinoBuilding, dirtClump, fossilArt, puzzlePieces } from '../art/dinos';
+import { badgeArt, emergencyArt, flameArt, flamesHouse, rescueBuilding, splashArt } from '../art/rescue';
+import { DINOS } from '../content/dinos';
 import { tileColor } from '../content/letters';
+import { EMERGENCIES } from '../content/rescue';
 import type { StickerId } from '../content/stickers';
 import { DECOS, FLAVORS } from '../content/bakery';
 import { addProblem } from '../art/problems';
@@ -26,6 +30,35 @@ export function galleryScene(): Scene {
     mount(ctx) {
       const svg = stageSvg();
       svg.append(s('rect', { x: -1280, y: -800, width: 3840, height: 2400, fill: '#efe3cf' }));
+      // `?gallery=rescue`: emergencies, badges, flames, the house, and the building.
+      // `?gallery=dino`: dinosaurs, fossils, a sand mound, puzzle pieces, and the building.
+      const page = new URLSearchParams(location.search).get('gallery');
+      if (page === 'rescue' || page === 'dino') {
+        const put = (el: SVGGElement, t: string) => {
+          el.setAttribute('transform', t);
+          svg.append(el);
+        };
+        if (page === 'rescue') {
+          EMERGENCIES.forEach((e, i) => put(emergencyArt(e.id), `translate(${20 + i * 310} 20) scale(0.9)`));
+          ['star', 'rex', 'fireTruck', 'wrench'].forEach((id, i) => put(badgeArt(id as StickerId), `translate(${20 + i * 120} 260)`));
+          put(flameArt(), 'translate(560 330)');
+          put(splashArt(), 'translate(660 320)');
+          put(flamesHouse().house, 'translate(760 260) scale(0.8)');
+          put(rescueBuilding(), 'translate(40 400) scale(0.9)');
+        } else {
+          DINOS.forEach((d, i) => {
+            put(dinoArt(d.id), `translate(${i * 230} 0) scale(0.75)`);
+            put(fossilArt(d.id), `translate(${i * 230} 230) scale(0.75)`);
+          });
+          put(dirtClump(), 'translate(800 120)');
+          const { frame, pieces } = puzzlePieces('hornDino', 4);
+          put(frame, 'translate(900 260) scale(0.8)');
+          pieces.forEach((p, i) => put(p.el, `translate(${700 + (i % 2) * 40} ${460 + Math.floor(i / 2) * 40}) scale(0.8)`));
+          put(dinoBuilding(), 'translate(60 440) scale(0.75)');
+        }
+        ctx.root.append(svg);
+        return;
+      }
       // `?gallery=post`: envelopes, letter tiles, mailboxes, the truck, houses, a package, stamps, the building.
       if (new URLSearchParams(location.search).get('gallery') === 'post') {
         const put = (el: SVGGElement, t: string) => {

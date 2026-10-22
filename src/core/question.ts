@@ -32,6 +32,8 @@ export interface QuestionOptions {
   glowFromStart?: boolean;
   /** The idle check-in line (default Pops' "Are you still there?"). */
   stillThereLine?: string;
+  /** Runs after each time the prompt is spoken (Siren Sounds plays the siren). */
+  onPrompt?: () => void;
 }
 
 export interface QuestionResult {
@@ -57,6 +59,7 @@ export function askQuestion(ctx: SceneContext, q: QuestionOptions): Promise<Ques
     if (q.pops.current === 'idle' || q.pops.current === 'asking') q.pops.pose('asking');
     void ctx.speak(q.promptLine).then(() => {
       if (!done && q.pops.current === 'asking') q.pops.pose('idle');
+      if (!done) q.onPrompt?.();
     });
   };
 

@@ -23,7 +23,11 @@ export type SfxName =
   | 'crack'
   | 'plop'
   | 'pour'
-  | 'ding';
+  | 'ding'
+  | 'wail'
+  | 'whoop'
+  | 'splash'
+  | 'brush';
 
 type Env = { attack?: number; hold?: number; release: number; peak: number };
 
@@ -169,6 +173,27 @@ const SOUNDS: Record<SfxName, (s: Sfx, ctx: AudioContext, out: AudioNode, t: num
     o.connect(g).connect(out);
     o.start(t);
     o.stop(t + 1.5);
+  },
+  // The ambulance: a gentle hi-lo, hi-lo.
+  wail: (_s, ctx, out, t) => {
+    for (let i = 0; i < 4; i++) {
+      const f = i % 2 === 0 ? 700 : 520;
+      tone(ctx, out, t + i * 0.36, 'triangle', f, f, { attack: 0.03, hold: 0.26, release: 0.06, peak: 0.13 });
+    }
+  },
+  // The police car: quick soft whoops that rise.
+  whoop: (_s, ctx, out, t) => {
+    for (let i = 0; i < 3; i++) tone(ctx, out, t + i * 0.42, 'sine', 420, 900, { attack: 0.04, hold: 0.24, release: 0.1, peak: 0.15 });
+  },
+  // Water from the fire hose.
+  splash: (s, ctx, out, t) => {
+    noise(s, ctx, out, t, 'bandpass', 2500, 700, { attack: 0.02, release: 0.3, peak: 0.35 });
+    tone(ctx, out, t + 0.05, 'sine', 700, 300, { release: 0.1, peak: 0.12 });
+  },
+  // Brushing the sand off a fossil.
+  brush: (s, ctx, out, t) => {
+    noise(s, ctx, out, t, 'highpass', 3000, 2000, { attack: 0.04, release: 0.12, peak: 0.2 });
+    noise(s, ctx, out, t + 0.16, 'highpass', 2600, 1800, { attack: 0.04, release: 0.12, peak: 0.18 });
   },
   // A soft toy-engine rumble for vehicles rolling in and out.
   vroom: (s, ctx, out, t) => {

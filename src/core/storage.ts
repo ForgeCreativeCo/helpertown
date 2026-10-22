@@ -1,5 +1,6 @@
 import { family } from '../config/family';
 import type { BakeItem } from '../content/bakery';
+import type { DinoId } from '../content/dinos';
 import { STARTER_LETTERS, STARTER_NUMBERS, type Letter } from '../content/letters';
 import { STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
 import type { MagnetId } from '../content/magnets';
@@ -30,7 +31,7 @@ export interface Settings {
   music: boolean;
 }
 
-export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate' | 'letters' | 'namesign' | 'houses';
+export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate' | 'letters' | 'namesign' | 'houses' | 'dispatch' | 'sirens' | 'flames' | 'dig' | 'sizes' | 'puzzle';
 
 export interface ToolStat {
   /** Questions that asked for this tool. */
@@ -70,6 +71,10 @@ export interface Progress {
   numbersIntroduced: number;
   /** Postage stamps earned (same pictures as the stickers). */
   stamps: StickerId[];
+  /** Rescue badges earned (same pictures as the stickers). */
+  badges: StickerId[];
+  /** Fossils he dug up, oldest first (the Dino Dig museum). */
+  fossils: DinoId[];
 }
 
 export interface SessionData {
@@ -99,7 +104,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [], letters: {}, lettersIntroduced: STARTER_LETTERS, numbers: {}, numbersIntroduced: STARTER_NUMBERS, stamps: [] },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {}, session: { date: '', ms: 0, resting: false }, ingredients: {}, ingredientsIntroduced: STARTER_INGREDIENTS, magnets: [], bakery: [], letters: {}, lettersIntroduced: STARTER_LETTERS, numbers: {}, numbersIntroduced: STARTER_NUMBERS, stamps: [], badges: [], fossils: [] },
   };
 }
 

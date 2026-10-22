@@ -1,14 +1,16 @@
 # Helper Town
 
-A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop, cooking with Mama in her kitchen, and delivering the mail with Pops at the post office. They ask, he helps, and they're proud of him.
+A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop, cooking with Mama in her kitchen, delivering the mail at the post office, sending help from the rescue station and digging up dinosaurs, all with Pops. They ask, he helps, and they're proud of him.
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** The **Town Map** is the home screen with three places:
+**Status:** The **Town Map** is the home screen with five places:
 
 - **Pops' Workshop** (Phase 1, complete): Fetch the Tool, Fix It, Tool Wall, My Garage.
 - **Mama's Kitchen** (complete): Fetch the Ingredient, Bake Together, Decorate Cookies, and the Bakery Shelf.
-- **Post Office** (new): Letter Mail, Name Sign and Number Houses, with Pops delivering the mail.
+- **Post Office** (complete): Letter Mail, Name Sign and Number Houses, with Pops delivering the mail.
+- **Rescue Station** (new): Who Can Help, Siren Sounds and Fire Hose.
+- **Dino Dig** (new): The Dig, Big and Little, Dino Puzzle, and the Dino Museum.
 
 Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. It's live at https://lincolnshelpertown.netlify.app (every push to `main` deploys).
 
@@ -43,7 +45,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen`, `?gallery=baking` and `?gallery=post` show the vehicles, Pops and Mama, the ingredients and magnets, the baking art and the post office art.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen`, `?gallery=baking`, `?gallery=post`, `?gallery=rescue` and `?gallery=dino` show the vehicles, Pops and Mama, the ingredients and magnets, the baking art, the post office art, the rescue art and the dino art.
 - Add `?fps` to the URL (works on the deployed site too) for a small frames-per-second meter with the slowest frame in the last second. On the tablet it should stay near 60 fps, with no frames slower than about 50 ms.
 - Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
@@ -75,6 +77,8 @@ src/
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
   scenes/               start, town (Town Map), hub (Pops' Workshop), fetch, fixit, toolwall,
                         post (Post Office), letters, namesign, houses,
+                        rescue (Rescue Station), dispatch + sirens (Who Can Help, Siren Sounds), flames,
+                        dino (Dino Dig), dig, sizes, puzzle,
                         garage, kitchen (Mama's Kitchen), cook (Fetch the Ingredient),
                         bake, decorate, bakery, fetchGame (the shared "fetch" game), rest, gallery (dev only)
 scripts/
@@ -105,7 +109,7 @@ tests/                  Vitest
 
 ### Town Map
 
-The home screen after the start button: a sunny street with Pops' Workshop and Mama's house (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "Mama's kitchen!") and zooms in. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
+The home screen after the start button: a sunny street with Pops' Workshop, Mama's house, the Post Office, the Rescue Station and the Dino Dig (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "The rescue station!") and zooms in, where the grown-up says hello. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
 
 ### Post Office
 
@@ -116,6 +120,25 @@ Pops is delivering the mail (in Bill's voice). The big blue **mailbox**, Lincoln
 - **Number Houses:** "This package goes to house three!" He taps the house with that number (houses on the street are in number order), the mail truck drives over and the package hops to the door, *ding-dong*. Houses 1–3 at first, growing to 10.
 - **Reward:** each round earns a postage stamp for the board; tap a stamp to hear it.
 - **Parent menu:** shows which letters and house numbers he knows (first-try accuracy).
+
+### Rescue Station
+
+Pops runs the fire station. The red **alarm bell**, the **radio** on his desk and the **fire hose** reel each open a game, and his rescue badges go on the board.
+
+- **Who Can Help:** an emergency appears on the screen: a house on fire, someone with a hurt arm, a traffic jam, a broken-down car. "There's a fire! Which truck do we need?" He sends the right vehicle (fire truck, ambulance, police car, tow truck) and it zooms off with its siren. Errorless and adaptive, 2–4 choices; a wrong tap names the vehicle.
+- **Siren Sounds:** the same game by ear. "Which one makes this sound?" and the radio plays a soft toy siren: a slow wail (fire truck), hi-lo (ambulance), quick whoops (police car) or a honk (tow truck). The sound replays every time the question repeats.
+- **Fire Hose:** a house has little flames in the windows and on the roof. Every tap sprays one out while Pops counts ("One! Two! Three!"), then "You saved the day!" Two houses: 3 flames, then 5.
+- **Reward:** each round earns a rescue badge (a sticker picture in a gold star); tap one to hear it.
+- Most lines are reused from earlier places (vehicle names, counting, praise), so this place only needed 10 new voice lines.
+
+### Dino Dig
+
+Pops at the dig site. The **sandbox**, the **puzzle table** and the **dino park** each open a game, and the **museum shelf** shows his newest three fossils (tap one to hear its name).
+
+- **The Dig:** "Tap the dirt to dig!" Each tap brushes away a sand mound while Pops counts. When the fossil is uncovered it comes alive for a moment as the real dinosaur ("A dinosaur with horns!", "You found it!"), then "It goes in the museum!" Two digs per visit (3 mounds, then 5); the T. rex, long-neck and horned dinosaur take turns.
+- **Big and Little:** two of the same dinosaur in very different sizes. "Find the big dinosaur!" / "Find the little dinosaur!", taking turns. After a few first-try answers a middle-sized one joins as a distractor. Even the little one has a big tap area.
+- **Dino Puzzle:** a dinosaur picture in 2, then 3, then 4 pieces. Each tap sends a piece home to its place in the frame (nothing to get wrong), and the finished dinosaur says its name.
+- **Reward:** the fossils in the museum, and a celebration after each round.
 
 ### Mama's Kitchen
 

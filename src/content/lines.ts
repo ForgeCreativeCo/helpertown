@@ -4,6 +4,7 @@ import { INGREDIENTS } from './ingredients';
 import { ALPHABET, NUMBER_NAMES, NUMBERS } from './letters';
 import { MAGNETS } from './magnets';
 import { PROBLEMS } from './problems';
+import { EMERGENCIES } from './rescue';
 import { STICKERS } from './stickers';
 import { TOOLS } from './tools';
 import { VEHICLES } from './vehicles';
@@ -22,9 +23,9 @@ import { VEHICLES } from './vehicles';
  */
 export type Speaker = 'pops' | 'mama';
 
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking' | 'post' | 'letters' | 'numbers';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking' | 'post' | 'letters' | 'numbers' | 'rescue' | 'dino';
 
-export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco' | 'letter' | 'number';
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco' | 'letter' | 'number' | 'emergency';
 
 export interface LineTemplate {
   id: string;
@@ -174,6 +175,32 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'num.delivered', group: 'numbers', text: 'Delivered! Thank you!' },
   { id: 'num.newOne', group: 'numbers', text: 'A new house on the street!' },
 
+  // Rescue Station (Pops). Vehicle names, counting and praise come from existing lines.
+  { id: 'town.rescue', group: 'rescue', text: 'The rescue station!' },
+  { id: 'rescue.hello', group: 'rescue', text: "Rescue time! Let's go help!" },
+  { id: 'rescue.alarm', group: 'rescue', text: 'The alarm bell!' },
+  { id: 'rescue.radio', group: 'rescue', text: 'The radio!' },
+  { id: 'rescue.hose', group: 'rescue', text: 'The fire hose!' },
+  { id: 'rescue.ask', group: 'rescue', text: '{emergency}', vars: ['emergency'] },
+  { id: 'rescue.sound', group: 'rescue', text: 'Which one makes this sound?' },
+  { id: 'rescue.flames', group: 'rescue', text: 'Tap the flames to put them out!' },
+  { id: 'rescue.saved', group: 'rescue', text: 'You saved the day!' },
+  { id: 'rescue.badge', group: 'rescue', text: 'A new rescue badge!' },
+
+  // Dino Dig (Pops). Dinosaur names reuse the sticker lines; "You found it!" is reused too.
+  { id: 'town.dino', group: 'dino', text: 'The dino dig!' },
+  { id: 'dino.hello', group: 'dino', text: "Let's dig for dinosaurs!" },
+  { id: 'dino.sandbox', group: 'dino', text: 'The sandbox!' },
+  { id: 'dino.park', group: 'dino', text: 'The dino park!' },
+  { id: 'dino.puzzleTable', group: 'dino', text: 'The puzzle table!' },
+  { id: 'dino.dig', group: 'dino', text: 'Tap the dirt to dig!' },
+  { id: 'dino.museum', group: 'dino', text: 'It goes in the museum!' },
+  { id: 'dino.big', group: 'dino', text: 'Find the big dinosaur!' },
+  { id: 'dino.little', group: 'dino', text: 'Find the little dinosaur!' },
+  { id: 'dino.thatsBig', group: 'dino', text: "That's the big one!" },
+  { id: 'dino.thatsLittle', group: 'dino', text: "That's the little one!" },
+  { id: 'dino.puzzle', group: 'dino', text: 'Put the dinosaur back together!' },
+
   {
     id: 'mama.goodbye',
     group: 'winddown',
@@ -208,6 +235,7 @@ const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   deco: DECOS.map((d) => ({ id: d.id, word: d.word })),
   letter: ALPHABET.map((l) => ({ id: l, word: l })),
   number: NUMBERS.map((n) => ({ id: String(n), word: NUMBER_NAMES[n] })),
+  emergency: EMERGENCIES.map((e) => ({ id: e.id, word: e.sentence })),
 };
 
 export interface Line {

@@ -1,3 +1,4 @@
+import { DINOS, type DinoId } from '../content/dinos';
 import { INGREDIENTS, STARTER_INGREDIENTS, type IngredientId } from '../content/ingredients';
 import { letterOrder, NUMBERS, STARTER_LETTERS, STARTER_NUMBERS, type Letter } from '../content/letters';
 import { MAGNETS, type MagnetId } from '../content/magnets';
@@ -115,6 +116,23 @@ export const numberPool = (p: Progress) => pool(NUMBER_SET, p);
 export const recordNumberAnswer = (p: Progress, n: string, firstTry: boolean) => recordAnswer(NUMBER_SET, p, n, firstTry);
 export const maybeIntroduceNumber = (p: Progress) => maybeIntroduce(NUMBER_SET, p);
 export const numberAccuracy = (p: Progress) => accuracy(NUMBER_SET, p);
+
+/** A rescue badge for the station wall (same pictures as the stickers). */
+export function awardBadge(p: Progress): StickerId {
+  const id = STICKERS[(p.badges.length + 5) % STICKERS.length]!.id;
+  p.badges.push(id);
+  return id;
+}
+
+/** A fossil he dug up goes in the museum. */
+export function addFossil(p: Progress, dino: DinoId): void {
+  p.fossils.push(dino);
+}
+
+/** The dinosaur to dig up next: they take turns. */
+export function nextFossil(p: Progress): DinoId {
+  return DINOS[p.fossils.length % DINOS.length]!.id;
+}
 
 /** A postage stamp for the post office board (same pictures as the stickers). */
 export function awardStamp(p: Progress): StickerId {
