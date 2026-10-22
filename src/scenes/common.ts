@@ -1,6 +1,6 @@
 import type { Character } from '../art/characters';
 import { MAMA_PRAISE_LINES, PRAISE_LINES } from '../content/lines';
-import { breathe, finished, wiggle } from '../core/anim';
+import { bounce, breathe, finished, wiggle } from '../core/anim';
 import { isResting, startRest, timeUp } from '../core/session';
 import { localDate } from '../core/storage';
 import { s } from '../core/svg';
@@ -105,4 +105,18 @@ export function navButton(ctx: SceneContext, svg: SVGSVGElement, art: SVGGElemen
     ctx.onCleanup(() => ctx.app.input.unlock());
     void ctx.speak(line, { replaceQueued: true }).then(() => ctx.go(sceneId, { from: { x: cx, y: cy } }));
   });
+}
+
+/**
+ * Invites taps by giving one thing at a time a little hop, taking turns every
+ * few seconds. Cheaper on tablets than keeping everything breathing at once.
+ */
+export function takeTurnsHopping(ctx: SceneContext, els: SVGElement[], everyMs = 2600, startMs = 1500): void {
+  let i = 0;
+  const hop = () => {
+    const el = els[i++ % els.length];
+    if (el) bounce(el as SVGGElement, 12);
+    ctx.after(everyMs, hop);
+  };
+  if (els.length) ctx.after(startMs, hop);
 }

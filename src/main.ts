@@ -46,6 +46,9 @@ function boot(): void {
     (window as unknown as { helperTown: App }).helperTown = app;
   }
 
+  // `?fps` shows frames per second and the slowest frame, for checking on the tablet.
+  if (new URLSearchParams(location.search).has('fps')) showFps(viewport);
+
   // The play clock: counts active play toward today's total and the session.
   let ticks = 0;
   setInterval(() => {
@@ -80,6 +83,29 @@ function boot(): void {
     return;
   }
   scenes.go('start', { instant: true });
+}
+
+function showFps(viewport: HTMLElement): void {
+  const el = document.createElement('div');
+  el.id = 'fps';
+  viewport.append(el);
+  let frames = 0;
+  let worst = 0;
+  let last = performance.now();
+  let windowStart = last;
+  const tick = (now: number) => {
+    frames++;
+    worst = Math.max(worst, now - last);
+    last = now;
+    if (now - windowStart >= 1000) {
+      el.textContent = `${Math.round((frames * 1000) / (now - windowStart))} fps · worst ${Math.round(worst)} ms`;
+      frames = 0;
+      worst = 0;
+      windowStart = now;
+    }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 }
 
 boot();

@@ -13,12 +13,14 @@
     "test": "vitest run",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build",
     "voices": "tsx scripts/voices/generate.ts",
-    "voices:setup": "tsx scripts/voices/setup.ts"
+    "voices:setup": "tsx scripts/voices/setup.ts",
+    "icons": "tsx scripts/icons.ts"
   },
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
     "@elevenlabs/elevenlabs-js": "^2.74.0",
     "@eslint/js": "^10.0.1",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^26.6.5",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
     "eslint": "^10.13.0",

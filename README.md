@@ -34,6 +34,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 | `npm run check` | Typecheck, lint, tests and build in one go |
 | `npm run voices:setup` | One-time download of Piper, the free offline voice engine (optional) |
 | `npm run voices` | Generate any missing voice files |
+| `npm run icons` | Render the app icons (PNGs) from `public/icon.svg` |
 
 ### Testing on the Fire tablet
 
@@ -41,7 +42,8 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page, and `?gallery=vehicles` shows every vehicle, clean and with a problem.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people` and `?gallery=kitchen` show the vehicles, Pops and Mama, and the ingredients and magnets.
+- Add `?fps` to the URL (works on the deployed site too) for a small frames-per-second meter with the slowest frame in the last second. On the tablet it should stay near 60 fps, with no frames slower than about 50 ms.
 - Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
 ## How it's built
@@ -219,6 +221,32 @@ To keep it, set `ELEVENLABS_VOICE_POPS` or `ELEVENLABS_VOICE_MAMA` in `.env.loca
 - **Windows' built-in voice**: `-- --engine sapi` (no download, more robotic).
 - Engines live in `scripts/voices/engines.ts`; add one by implementing its small `Engine` interface.
 
+## Offline and performance
+
+- The app is a PWA. On first load the service worker caches everything: code, art, every voice file and the icons (about 2.4 MB). After that it works in airplane mode. We tested this by loading the built app, shutting the server down and reloading: it started, spoke and moved between places.
+- A new deploy reaches the tablet the next time the app is opened online. `netlify.toml` keeps `sw.js`, `registerSW.js`, `index.html` and the manifest from being cached, and hashed assets are cached forever.
+- No requests go anywhere but the app's own site, and nothing is fetched after install.
+- Performance: there are no SVG filters, and only transform and opacity are animated. Scenes have 165–450 SVG elements, and every screen ran at a steady 60 fps on a desktop. Tappable spots take turns doing a little hop instead of all moving at once, which keeps redrawing low on tablets.
+- **Checking with CPU throttling:** in desktop Chrome, open DevTools → Performance → CPU: "4× slowdown", open the game with `?fps`, and play a round. On the tablet itself, open the game with `?fps`.
+
 ## Deploying
 
-Coming in Milestone 5 (Netlify, `npm run build` → `dist/`).
+The game is a static site on Netlify. `npm run build` writes it to `dist/`, and `netlify.toml` holds the settings (build command, publish folder, Node version, caching headers).
+
+**Setting it up once (recommended: deploy from GitHub):**
+1. In Netlify, choose **Add new site → Import an existing project → GitHub**, and pick `ForgeCreativeCo/helpertown`.
+2. The build settings come from `netlify.toml` (build `npm run build`, publish `dist`), so just click **Deploy**.
+3. Optional: under **Site configuration → Change site name**, pick something friendly (for example `helper-town`) for a URL like `https://helper-town.netlify.app`.
+
+After that, every push to `main` deploys automatically. Voice files are generated on your computer and committed, so Netlify never needs the ElevenLabs key.
+
+## Adding it to his Amazon Kids profile
+
+1. On the tablet, open the site once in the **parent profile** in Silk while online, so the game and all its voices get saved for offline use.
+2. Add the site to his profile: on the tablet, go to **Settings → Amazon Kids → (his profile) → Add Content → Websites**. Or use the Amazon Parent Dashboard (parents.amazon.com) → his profile → **Add content** → **Websites**. Enter the Netlify URL. The menu names vary a little between Fire OS versions; it's the same place you added your other web app.
+3. Switch to his profile and open Helper Town once while online. The first load inside the Kids browser caches everything there too.
+4. To test offline, turn on airplane mode and open it again.
+
+**Notes**
+- Kids profiles keep their own browser storage, so his progress, photos and recordings live in his profile, not the parent profile. Add photos and make recordings from the parent menu inside his profile: hold the gear in the top-right corner for 3 seconds.
+- Recording the voice needs a secure (https) page. The Netlify site is https, so recording works there.

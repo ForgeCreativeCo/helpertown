@@ -20,7 +20,7 @@ import { bounce, breathe, placeAt, popIn, wiggle } from '../core/anim';
 import { photoUrl } from '../core/photos';
 import { woodFrame } from '../art/frames';
 import { townButton } from '../art/town';
-import { navButton, watchSession, windDown } from './common';
+import { navButton, takeTurnsHopping, watchSession, windDown } from './common';
 import type { Scene, SceneContext } from '../core/scenes';
 import { hitGroup, s, stageSvg } from '../core/svg';
 
@@ -60,13 +60,14 @@ export function hubScene(): Scene {
       const back = s('g');
       const front = s('g');
       const groups = new Map<string, SVGGElement>();
-      SPOTS.forEach((spot, i) => {
+      const arts: SVGGElement[] = [];
+      SPOTS.forEach((spot) => {
         const art = spot.art();
         art.setAttribute('class', 'tf-bottom');
         const g = hitGroup(art, spot.box, 24);
         (spot.front ? front : back).append(g);
         groups.set(spot.lineId, g);
-        ctx.keep(breathe(art, 0.025, 2400, i * 600));
+        arts.push(art);
         ctx.tap(g, () => {
           ctx.sfx('tap');
           wiggle(g);
@@ -92,6 +93,7 @@ export function hubScene(): Scene {
       svg.append(back, r.radio, ...r.notes, cat.cat, pops.el, workbench(), mug.mug, ...mug.steam, front, stickers);
 
       ambientLife(ctx, pops, mug.steam, r.notes, cat.body);
+      takeTurnsHopping(ctx, arts);
       showStickers(ctx, stickers, ctx.progress.stickers, ctx.params.newSticker as StickerId | undefined);
       // Just back from Fix It: the garage door honks hello to the vehicles he fixed.
       if (ctx.params.newVehicles) {

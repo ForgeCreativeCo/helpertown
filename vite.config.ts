@@ -12,17 +12,24 @@ export default defineConfig(({ mode }) => ({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['icon.svg'],
+      includeAssets: ['icon.svg', 'apple-touch-icon.png'],
       manifest: {
         name: 'Helper Town',
         short_name: 'Helper Town',
-        description: "Help Pops fix things in his workshop.",
-        display: 'fullscreen',
+        description: 'Help Pops in his workshop and Mama in her kitchen.',
+        display: 'standalone',
+        display_override: ['fullscreen', 'standalone'],
         orientation: 'landscape',
         background_color: '#5b3a24',
         theme_color: '#5b3a24',
         start_url: '.',
-        icons: [{ src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        // PNGs come from `npm run icons` (rendered from icon.svg).
+        icons: [
+          { src: 'pwa-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,webp,mp3,ogg,m4a,wav,webmanifest}'],

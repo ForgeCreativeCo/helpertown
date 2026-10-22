@@ -1,9 +1,9 @@
 import { cloud, mamaHouse, townBackground, tree, workshopBuilding } from '../art/town';
 import { vehicleArt } from '../art/vehicles';
-import { breathe, wiggle } from '../core/anim';
+import { wiggle } from '../core/anim';
 import type { Scene, SceneContext } from '../core/scenes';
 import { fromMarkup, hitGroup, s, stageSvg } from '../core/svg';
-import { watchSession } from './common';
+import { takeTurnsHopping, watchSession } from './common';
 
 interface Place {
   lineId: string;
@@ -37,12 +37,13 @@ export function townScene(): Scene {
         ),
       );
 
-      PLACES.forEach((place, i) => {
+      const arts: SVGGElement[] = [];
+      PLACES.forEach((place) => {
         const art = place.art();
         art.setAttribute('class', 'tf-bottom');
         const g = hitGroup(art, place.box, 20);
         svg.append(g);
-        ctx.keep(breathe(art, 0.02, 2600, i * 900));
+        arts.push(art);
         ctx.tap(g, () => {
           ctx.sfx('tap');
           wiggle(g);
@@ -53,6 +54,7 @@ export function townScene(): Scene {
         });
       });
 
+      takeTurnsHopping(ctx, arts, 3000);
       chimneySmoke(ctx, svg);
       drivingTruck(ctx, svg);
 
