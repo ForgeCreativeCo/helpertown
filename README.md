@@ -1,16 +1,17 @@
 # Helper Town
 
-A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop, cooking with Mama in her kitchen, delivering the mail at the post office, sending help from the rescue station and digging up dinosaurs, all with Pops. They ask, he helps, and they're proud of him.
+A tap-only learning game for a little helper who can't read yet. He visits the places in Helper Town and helps the grown-ups there: fixing things with Pops in his workshop, cooking with Mama in her kitchen, delivering the mail at the post office, sending help from the rescue station, digging up dinosaurs and building at the construction site, all with Pops. They ask, he helps, and they're proud of him.
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** The **Town Map** is the home screen with five places:
+**Status:** The **Town Map** is the home screen with six places:
 
 - **Pops' Workshop** (Phase 1, complete): Fetch the Tool, Fix It, Tool Wall, My Garage.
 - **Mama's Kitchen** (complete): Fetch the Ingredient, Bake Together, Decorate Cookies, and the Bakery Shelf.
 - **Post Office** (complete): Letter Mail, Name Sign and Number Houses, with Pops delivering the mail.
-- **Rescue Station** (new): Who Can Help, Siren Sounds and Fire Hose.
-- **Dino Dig** (new): The Dig, Big and Little, Dino Puzzle, and the Dino Museum.
+- **Rescue Station** (complete): Who Can Help, Siren Sounds and Fire Hose.
+- **Dino Dig** (complete): The Dig, Big and Little, Dino Puzzle, and the Dino Museum.
+- **Construction Site** (new): Rock Sorting, Excavator Scoops and Tile Tower.
 
 Also: celebrations, adaptive difficulty, generated voices for Pops and Mama, the parent menu and the session wind-down. It's live at https://lincolnshelpertown.netlify.app (every push to `main` deploys).
 
@@ -45,7 +46,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen`, `?gallery=baking`, `?gallery=post`, `?gallery=rescue` and `?gallery=dino` show the vehicles, Pops and Mama, the ingredients and magnets, the baking art, the post office art, the rescue art and the dino art.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page; `?gallery=vehicles`, `?gallery=people`, `?gallery=kitchen`, `?gallery=baking`, `?gallery=post`, `?gallery=rescue`, `?gallery=dino` and `?gallery=construction` show the vehicles, Pops and Mama, the ingredients and magnets, the baking art, the post office art, the rescue art, the dino art and the construction art.
 - Add `?fps` to the URL (works on the deployed site too) for a small frames-per-second meter with the slowest frame in the last second. On the tablet it should stay near 60 fps, with no frames slower than about 50 ms.
 - Progress (tools learned, difficulty, stickers, garage) is saved on the device. Reset it from the parent menu.
 
@@ -79,6 +80,7 @@ src/
                         post (Post Office), letters, namesign, houses,
                         rescue (Rescue Station), dispatch + sirens (Who Can Help, Siren Sounds), flames,
                         dino (Dino Dig), dig, sizes, puzzle,
+                        construction (Construction Site), sort, scoops, build,
                         garage, kitchen (Mama's Kitchen), cook (Fetch the Ingredient),
                         bake, decorate, bakery, fetchGame (the shared "fetch" game), rest, gallery (dev only)
 scripts/
@@ -109,7 +111,7 @@ tests/                  Vitest
 
 ### Town Map
 
-The home screen after the start button: a sunny street with Pops' Workshop, Mama's house, the Post Office, the Rescue Station and the Dino Dig (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "The rescue station!") and zooms in, where the grown-up says hello. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
+The home screen after the start button: a sunny street with Pops' Workshop, Mama's house, the Post Office, the Rescue Station, the Dino Dig and the Construction Site (chimney smoke, clouds, a little dump truck driving by). Tapping a place says its name ("Pops's workshop!", "The rescue station!") and zooms in, where the grown-up says hello. Every place has a blue **town button** (two little houses) in its top-left corner to come back. Only places that exist are shown; there are no locked or "coming soon" buildings.
 
 ### Post Office
 
@@ -139,6 +141,16 @@ Pops at the dig site. The **sandbox**, the **puzzle table** and the **dino park*
 - **Big and Little:** two of the same dinosaur in very different sizes. "Find the big dinosaur!" / "Find the little dinosaur!", taking turns. After a few first-try answers a middle-sized one joins as a distractor. Even the little one has a big tap area.
 - **Dino Puzzle:** a dinosaur picture in 2, then 3, then 4 pieces. Each tap sends a piece home to its place in the frame (nothing to get wrong), and the finished dinosaur says its name.
 - **Reward:** the fossils in the museum, and a celebration after each round.
+
+### Construction Site
+
+Pops at the building site. The **dump truck** opens Rock Sorting, the **excavator** opens Excavator Scoops, and the **tile table** Pops stands behind opens Tile Tower.
+
+- **Rock Sorting:** a colored rock swings down from the crane. "Put the red rock in the red truck!" He taps the dump truck of the same color (red, blue, yellow, green) and the rock drops into its bed. Errorless and adaptive, 2–4 trucks; a wrong tap says "That's the blue truck!".
+- **Excavator Scoops:** every tap on the excavator scoops dirt from the pile into the dump truck while Pops counts. "The truck is full!" and it drives off; three trucks of 3, 4 and 5 scoops.
+- **Tile Tower:** open-ended building like his magnetic tiles. Tapping any of the four see-through tiles (square, triangle, rectangle, circle) stacks it on the tower; nothing is ever wrong. After six tiles, "What a tall tower!", then "Uh oh! Here comes a dinosaur!" and a friendly T. rex stomps in and knocks it down so he can build again. Two towers per visit.
+- **Reward:** a sticker for his toolbox each round.
+- Truck names, counting, "A dinosaur!", praise and the sticker lines are all reused, so this place needed 17 new voice lines (445 characters).
 
 ### Mama's Kitchen
 

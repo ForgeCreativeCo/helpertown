@@ -2,8 +2,10 @@ import { Mama, Pops, type PopsPose } from '../art/characters';
 import { cookieArt, crackedEggArt, decoArt, eggArt, fruitPieceArt, muffinArt, muffinTin, oven } from '../art/bakery';
 import { ingredientArt, magnetArt } from '../art/kitchen';
 import { bigMailbox, envelopeArt, letterTileArt, mailTruck, myMailbox, numberHouse, packageArt, postOfficeBuilding, stampArt } from '../art/post';
+import { colorTruck, constructionBuilding, dirtPile, rockArt, sideBarrier, tileArt, tileTable } from '../art/construction';
 import { dinoArt, dinoBuilding, dirtClump, fossilArt, puzzlePieces } from '../art/dinos';
 import { badgeArt, emergencyArt, flameArt, flamesHouse, rescueBuilding, splashArt } from '../art/rescue';
+import { ROCK_COLORS, TILE_COLORS, TILE_SHAPES } from '../content/construction';
 import { DINOS } from '../content/dinos';
 import { tileColor } from '../content/letters';
 import { EMERGENCIES } from '../content/rescue';
@@ -33,12 +35,23 @@ export function galleryScene(): Scene {
       // `?gallery=rescue`: emergencies, badges, flames, the house, and the building.
       // `?gallery=dino`: dinosaurs, fossils, a sand mound, puzzle pieces, and the building.
       const page = new URLSearchParams(location.search).get('gallery');
-      if (page === 'rescue' || page === 'dino') {
+      if (page === 'rescue' || page === 'dino' || page === 'construction') {
         const put = (el: SVGGElement, t: string) => {
           el.setAttribute('transform', t);
           svg.append(el);
         };
-        if (page === 'rescue') {
+        if (page === 'construction') {
+          // `?gallery=construction`: colored trucks and rocks, tiles, the table, the barrier and the building.
+          ROCK_COLORS.forEach((r, i) => {
+            put(colorTruck(r.id).body, `translate(${10 + i * 300} 10) scale(0.55)`);
+            put(rockArt(r.id), `translate(${140 + i * 300} 230)`);
+          });
+          TILE_SHAPES.forEach((sh, i) => put(tileArt(sh, TILE_COLORS[i]!), `translate(${100 + i * 200} 380)`));
+          put(dirtPile(0.6), 'translate(960 460)');
+          put(tileTable(), 'translate(-300 120)');
+          put(sideBarrier(), 'translate(830 70)');
+          put(constructionBuilding(), 'translate(480 440) scale(0.75)');
+        } else if (page === 'rescue') {
           EMERGENCIES.forEach((e, i) => put(emergencyArt(e.id), `translate(${20 + i * 310} 20) scale(0.9)`));
           ['star', 'rex', 'fireTruck', 'wrench'].forEach((id, i) => put(badgeArt(id as StickerId), `translate(${20 + i * 120} 260)`));
           put(flameArt(), 'translate(560 330)');

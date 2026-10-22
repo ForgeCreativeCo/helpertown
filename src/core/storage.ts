@@ -31,7 +31,7 @@ export interface Settings {
   music: boolean;
 }
 
-export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate' | 'letters' | 'namesign' | 'houses' | 'dispatch' | 'sirens' | 'flames' | 'dig' | 'sizes' | 'puzzle';
+export type ActivityId = 'fetch' | 'fixit' | 'toolwall' | 'cook' | 'bake' | 'decorate' | 'letters' | 'namesign' | 'houses' | 'dispatch' | 'sirens' | 'flames' | 'dig' | 'sizes' | 'puzzle' | 'sort' | 'scoops' | 'build';
 
 export interface ToolStat {
   /** Questions that asked for this tool. */

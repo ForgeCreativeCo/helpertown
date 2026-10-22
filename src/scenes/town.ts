@@ -1,3 +1,4 @@
+import { constructionBuilding } from '../art/construction';
 import { dinoBuilding } from '../art/dinos';
 import { postOfficeBuilding } from '../art/post';
 import { rescueBuilding } from '../art/rescue';
@@ -8,7 +9,7 @@ import type { Scene, SceneContext } from '../core/scenes';
 import { fromMarkup, hitGroup, s, stageSvg } from '../core/svg';
 import { takeTurnsHopping, watchSession } from './common';
 
-const SCALE = 0.5;
+const SCALE = 0.42;
 const GROUND = 566;
 
 interface Place {
@@ -26,10 +27,11 @@ interface Place {
 /** Only places that exist are shown: no locked or "coming soon" buildings. */
 const PLACES: Place[] = [
   { lineId: 'town.workshop', sceneId: 'hub', art: workshopBuilding, src: { left: 104, top: 186, ground: 566, width: 452 }, left: 40, door: 330 },
-  { lineId: 'town.kitchen', sceneId: 'kitchen', art: mamaHouse, src: { left: 734, top: 196, ground: 566, width: 432 }, left: 278, door: 950 },
-  { lineId: 'town.postOffice', sceneId: 'post', art: postOfficeBuilding, src: { left: 0, top: 20, ground: 380, width: 460 }, left: 506, door: 230 },
-  { lineId: 'town.rescue', sceneId: 'rescue', art: rescueBuilding, src: { left: 0, top: 20, ground: 380, width: 460 }, left: 748, door: 230 },
-  { lineId: 'town.dino', sceneId: 'dino', art: dinoBuilding, src: { left: 0, top: 0, ground: 380, width: 460 }, left: 1000, door: 230 },
+  { lineId: 'town.kitchen', sceneId: 'kitchen', art: mamaHouse, src: { left: 734, top: 196, ground: 566, width: 432 }, left: 240, door: 950 },
+  { lineId: 'town.postOffice', sceneId: 'post', art: postOfficeBuilding, src: { left: 0, top: 20, ground: 380, width: 460 }, left: 431, door: 230 },
+  { lineId: 'town.rescue', sceneId: 'rescue', art: rescueBuilding, src: { left: 0, top: 20, ground: 380, width: 460 }, left: 634, door: 230 },
+  { lineId: 'town.dino', sceneId: 'dino', art: dinoBuilding, src: { left: 0, top: 0, ground: 380, width: 460 }, left: 837, door: 230 },
+  { lineId: 'town.construction', sceneId: 'construction', art: constructionBuilding, src: { left: 0, top: 30, ground: 380, width: 460 }, left: 1040, door: 230 },
 ];
 
 /** Maps a point in a place's own art coordinates onto the street. */
@@ -45,7 +47,7 @@ export function townScene(): Scene {
       const svg = stageSvg();
       const clouds = [cloud(60, 40, 1), cloud(560, 90, 0.8), cloud(980, 30, 0.9)];
       const doors = PLACES.map((p) => onStreet(p, p.door, p.src.ground).x);
-      svg.append(townBackground(doors), ...clouds, tree(-40, 560, 0.9), tree(1290, 560, 1));
+      svg.append(townBackground(doors), ...clouds, tree(-40, 560, 0.9), tree(1330, 560, 1));
       ctx.root.append(svg);
       clouds.forEach((c, i) =>
         ctx.keep(

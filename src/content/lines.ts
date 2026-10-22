@@ -4,6 +4,7 @@ import { INGREDIENTS } from './ingredients';
 import { ALPHABET, NUMBER_NAMES, NUMBERS } from './letters';
 import { MAGNETS } from './magnets';
 import { PROBLEMS } from './problems';
+import { ROCK_COLORS } from './construction';
 import { EMERGENCIES } from './rescue';
 import { STICKERS } from './stickers';
 import { TOOLS } from './tools';
@@ -23,9 +24,9 @@ import { VEHICLES } from './vehicles';
  */
 export type Speaker = 'pops' | 'mama';
 
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking' | 'post' | 'letters' | 'numbers' | 'rescue' | 'dino';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle' | 'winddown' | 'town' | 'kitchen' | 'baking' | 'post' | 'letters' | 'numbers' | 'rescue' | 'dino' | 'construction';
 
-export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco' | 'letter' | 'number' | 'emergency';
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count' | 'ingredient' | 'magnet' | 'flavor' | 'addition' | 'deco' | 'letter' | 'number' | 'emergency' | 'color';
 
 export interface LineTemplate {
   id: string;
@@ -201,6 +202,20 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'dino.thatsLittle', group: 'dino', text: "That's the little one!" },
   { id: 'dino.puzzle', group: 'dino', text: 'Put the dinosaur back together!' },
 
+  // Construction Site (Pops). Truck names ("Dump truck!", "Excavator!"), counting,
+  // "A dinosaur!", praise and the sticker reward reuse existing lines.
+  { id: 'town.construction', group: 'construction', text: 'The construction site!' },
+  { id: 'build.hello', group: 'construction', text: "Let's build something big!" },
+  { id: 'build.tilesSpot', group: 'construction', text: 'The building tiles!' },
+  { id: 'build.sort', group: 'construction', text: 'Put the {color} rock in the {color} truck!', vars: ['color'] },
+  { id: 'build.thatsTruck', group: 'construction', text: "That's the {color} truck!", vars: ['color'] },
+  { id: 'build.scoop', group: 'construction', text: 'Tap the excavator to scoop!' },
+  { id: 'build.full', group: 'construction', text: 'The truck is full!' },
+  { id: 'build.tiles', group: 'construction', text: 'Tap a tile to build!' },
+  { id: 'build.tall', group: 'construction', text: 'What a tall tower!' },
+  { id: 'build.dinoComing', group: 'construction', text: 'Uh oh! Here comes a dinosaur!' },
+  { id: 'build.stomp', group: 'construction', text: "Stomp! Let's build it again!" },
+
   {
     id: 'mama.goodbye',
     group: 'winddown',
@@ -236,6 +251,7 @@ const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   letter: ALPHABET.map((l) => ({ id: l, word: l })),
   number: NUMBERS.map((n) => ({ id: String(n), word: NUMBER_NAMES[n] })),
   emergency: EMERGENCIES.map((e) => ({ id: e.id, word: e.sentence })),
+  color: ROCK_COLORS.map((r) => ({ id: r.id, word: r.word })),
 };
 
 export interface Line {
