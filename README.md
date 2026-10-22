@@ -188,6 +188,10 @@ Tap the pegboard. Pops holds up a tool ("Where does the hammer go?") and he taps
 - **Progress:** time played today and this week (active play only), rounds per activity, garage and sticker counts, and first-try accuracy per tool.
 - **Reset:** clears progress after a second confirming tap. Settings, photos and recordings stay.
 
+### Mute button
+
+The faint speaker next to the gear mutes everything (voices, sound effects and music). Hold it for 1 second (a ring fills); hold it again to bring the sound back. A quick tap does nothing, so he can't turn the sound off by accident. While muted it shows a red X and stays clearly visible. The game keeps running at its normal pace. Muting isn't saved, so the game always opens with sound.
+
 ### Session wind-down
 
 Only active play counts (the app must be visible, with a tap in the last minute). When the session length is up, he finishes the round he's in. Back in the workshop the lights dim, Pops yawns and waves, the garage door rolls down, and Pops says goodbye ("Great work today, Lincoln! Pops needs a nap. See you next time!"). Then a calm night-time resting screen stays up until the next day or until a grown-up opens the menu. Reloading the page doesn't skip it.

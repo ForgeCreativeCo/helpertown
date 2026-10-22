@@ -4,6 +4,7 @@ import { localDate } from '../core/storage';
 import { showCheck } from './checkScreen';
 import { mountGear } from './gear';
 import { openMenu } from './menu';
+import { mountMute } from './mute';
 
 /**
  * Hold the gear 3 s → grown-ups check → parent menu. The game stops behind the
@@ -11,6 +12,7 @@ import { openMenu } from './menu';
  */
 export function mountParent(app: App): void {
   mountGear(app, () => void open(app));
+  mountMute(app);
 }
 
 async function open(app: App): Promise<void> {

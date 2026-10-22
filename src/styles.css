@@ -132,11 +132,29 @@ svg {
   transition: opacity 200ms;
 }
 
-#gear.holding {
+#mute {
+  position: absolute;
+  top: 6px;
+  right: 78px;
+  width: 64px;
+  height: 64px;
+  opacity: 0.32;
+  touch-action: none;
+  transition: opacity 200ms;
+}
+
+/* Muted stays clearly visible so nobody wonders where the sound went. */
+#mute.muted {
+  opacity: 0.85;
+}
+
+#gear.holding,
+#mute.holding {
   opacity: 0.9;
 }
 
-#gear svg {
+#gear svg,
+#mute svg {
   display: block;
   pointer-events: none;
 }

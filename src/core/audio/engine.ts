@@ -62,13 +62,21 @@ export class AudioEngine {
     this.applyVolumes();
   }
 
+  /** Silences voice, sound effects and music without touching the volume settings. */
+  muted = false;
+
+  setMuted(muted: boolean): void {
+    this.muted = muted;
+    this.applyVolumes();
+  }
+
   private applyVolumes(): void {
-    if (this.voiceGain) this.voiceGain.gain.value = this.volumes.voice;
-    if (this.sfxGain) this.sfxGain.gain.value = this.volumes.sfx;
+    if (this.voiceGain) this.voiceGain.gain.value = this.muted ? 0 : this.volumes.voice;
+    if (this.sfxGain) this.sfxGain.gain.value = this.muted ? 0 : this.volumes.sfx;
   }
 
   get voiceVolume(): number {
-    return this.volumes.voice;
+    return this.muted ? 0 : this.volumes.voice;
   }
 
   async decode(data: ArrayBuffer): Promise<AudioBuffer> {

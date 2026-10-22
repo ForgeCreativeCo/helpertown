@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+import { AudioEngine } from '../src/core/audio/engine';
 import { voiceSources, type VoiceSource } from '../src/core/audio/sources';
 import { VoiceQueue, type VoiceDeps } from '../src/core/audio/voiceQueue';
 
@@ -158,5 +159,18 @@ describe('VoiceQueue ordering', () => {
     await q.idle();
     expect(log).toHaveLength(2);
     expect(q.busy).toBe(false);
+  });
+});
+
+describe('mute', () => {
+  it('silences the voice without changing the volume setting', () => {
+    vi.stubGlobal('document', { addEventListener: () => undefined });
+    const engine = new AudioEngine();
+    vi.unstubAllGlobals();
+    engine.setVolumes(0.8, 0.5);
+    engine.setMuted(true);
+    expect(engine.voiceVolume).toBe(0);
+    engine.setMuted(false);
+    expect(engine.voiceVolume).toBe(0.8);
   });
 });
