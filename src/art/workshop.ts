@@ -233,6 +233,68 @@ export function repairBay(): { back: SVGGElement; front: SVGGElement } {
   return { back, front };
 }
 
+/** The pegboard for Tool Wall: a big board on the wall, the bench below. */
+export const PEGBOARD = { x: 300, y: 56, w: 940, h: 440 };
+
+export function toolWallBack(): SVGGElement {
+  const { x, y, w, h } = PEGBOARD;
+  const holes: string[] = [];
+  for (let hy = y + 30; hy < y + h - 10; hy += 40) {
+    for (let hx = x + 30; hx < x + w - 10; hx += 40) holes.push(`<circle cx="${hx}" cy="${hy}" r="6" fill="#a77b4c"/>`);
+  }
+  return fromMarkup(`
+    <rect x="-1280" y="-800" width="3840" height="1400" fill="${WALL}"/>
+    ${planks()}
+    <rect x="-1280" y="-800" width="3840" height="120" fill="#c4854c" opacity="0.6"/>
+    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="18" fill="#e6c48f" stroke="${INK}" stroke-width="12"/>
+    ${holes.join('')}
+    <rect x="${x + 14}" y="${y + 14}" width="${w - 28}" height="10" rx="5" fill="#f3dcb0"/>
+    ${floor()}
+  `);
+}
+
+/** Two little pegs that a tool hangs from. */
+export function pegs(cx: number, cy: number): SVGGElement {
+  return fromMarkup(`
+    <rect x="${cx - 34}" y="${cy - 104}" width="12" height="22" rx="5" fill="${DARK_METAL}" stroke="${INK}" stroke-width="4"/>
+    <rect x="${cx + 22}" y="${cy - 104}" width="12" height="22" rx="5" fill="${DARK_METAL}" stroke="${INK}" stroke-width="4"/>
+  `);
+}
+
+/** His garage: a bright wall up top and two rows of painted parking spots. */
+export const GARAGE_SPOTS = [220, 500, 780, 1060].flatMap((x) => [400, 680].map((ground) => ({ x, ground })));
+
+export function garageBackground(): SVGGElement {
+  const siding: string[] = [];
+  for (let y = -800; y < 230; y += 36) siding.push(`<line x1="-1280" y1="${y}" x2="2560" y2="${y}" stroke="#aebfcb" stroke-width="4"/>`);
+  const spots = GARAGE_SPOTS.map(
+    ({ x, ground }) => `
+      <rect x="${x - 132}" y="${ground - 170}" width="264" height="190" rx="18" fill="#8d969f"/>
+      <path d="M${x - 132} ${ground + 20} V${ground - 150} M${x + 132} ${ground + 20} V${ground - 150}" stroke="#f2d64b" stroke-width="10" stroke-linecap="round"/>`,
+  ).join('');
+  return fromMarkup(`
+    <rect x="-1280" y="-800" width="3840" height="1030" fill="#c9d6df"/>
+    ${siding.join('')}
+    <!-- Windows letting the sun in -->
+    <rect x="440" y="40" width="160" height="110" rx="12" fill="#9fd8f5" stroke="${INK}" stroke-width="8"/>
+    <rect x="680" y="40" width="160" height="110" rx="12" fill="#9fd8f5" stroke="${INK}" stroke-width="8"/>
+    <path d="M520 40 V150 M760 40 V150" stroke="${INK}" stroke-width="6"/>
+    <rect x="-1280" y="220" width="3840" height="1400" fill="#a7b0b8"/>
+    <rect x="-1280" y="214" width="3840" height="14" fill="#7d868f"/>
+    ${spots}
+  `);
+}
+
+/** A big round "go home" button with a little workshop house on it. */
+export function homeButton(cx: number, cy: number): SVGGElement {
+  return fromMarkup(`
+    <circle cx="${cx}" cy="${cy}" r="66" fill="#3fae5a" stroke="${INK}" stroke-width="10"/>
+    <path d="M${cx - 36} ${cy - 2} L${cx} ${cy - 36} L${cx + 36} ${cy - 2}" fill="none" stroke="#fff8e8" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M${cx - 26} ${cy - 8} V${cy + 32} H${cx + 26} V${cy - 8}" fill="#fff8e8" stroke="${INK}" stroke-width="6" stroke-linejoin="round"/>
+    <rect x="${cx - 9}" y="${cy + 8}" width="18" height="24" rx="4" fill="#e4473b" stroke="${INK}" stroke-width="5"/>
+  `);
+}
+
 /** The close-up bench for Fetch the Tool: wall behind, a long bench in front. */
 export function benchScene(): { back: SVGGElement; bench: SVGGElement } {
   const back = fromMarkup(`

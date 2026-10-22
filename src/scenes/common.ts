@@ -1,5 +1,13 @@
 import type { Pops } from '../art/pops';
+import { PRAISE_LINES } from '../content/lines';
 import type { SceneContext } from '../core/scenes';
+
+let praiseTurn = 0;
+
+/** The next short extra cheer, rotating so it doesn't get repetitive. */
+export function nextPraise(): string {
+  return PRAISE_LINES[praiseTurn++ % PRAISE_LINES.length]!;
+}
 
 /** Pops breathes gently and blinks every few seconds. */
 export function popsLife(ctx: SceneContext, pops: Pops): void {

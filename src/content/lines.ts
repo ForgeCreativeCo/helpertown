@@ -12,7 +12,7 @@ import { VEHICLES } from './vehicles';
  * have `plain`, a name-free version that plays whenever no matching named
  * voice file exists.
  */
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'praise' | 'round' | 'sticker' | 'idle';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'toolwall' | 'garage' | 'praise' | 'round' | 'sticker' | 'idle';
 
 export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count';
 
@@ -64,6 +64,18 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'fixit.fixed', group: 'fixit', text: 'You fixed the {vehicle}!', vars: ['vehicle'] },
   { id: 'fixit.toGarage', group: 'fixit', text: "It's going to your garage!" },
   { id: 'fixit.star', group: 'fixit', text: 'It gets a shiny star!' },
+
+  // Tool Wall
+  { id: 'toolwall.intro', group: 'toolwall', text: "Let's tidy up {grandpa}'s tools!", plain: "Let's tidy up the tools!" },
+  { id: 'toolwall.where', group: 'toolwall', text: 'Where does the {tool} go?', vars: ['tool'] },
+  { id: 'toolwall.thatsFor', group: 'toolwall', text: 'That spot is for the {tool}!', vars: ['tool'] },
+  { id: 'toolwall.allTidy', group: 'toolwall', text: 'All tidy! High five!' },
+
+  // My Garage
+  { id: 'garage.welcome', group: 'garage', text: 'Welcome to your garage, {child}!', plain: 'Welcome to your garage!' },
+  { id: 'garage.empty', group: 'garage', text: "Your garage is empty! Let's go fix some trucks!" },
+  { id: 'garage.name', group: 'garage', text: '{vehicle}!', vars: ['vehicle'] },
+  { id: 'nav.home', group: 'hub', text: 'Back to the workshop!' },
 ];
 
 export const PRAISE_LINES = ['praise.thanks', 'praise.justRight', 'praise.quick', 'praise.greatHelping'] as const;

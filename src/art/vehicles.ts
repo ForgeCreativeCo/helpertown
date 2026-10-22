@@ -22,6 +22,8 @@ export interface VehicleAnchors {
   roof: Pt;
   /** The headlight eye. */
   light: Pt;
+  /** License plate, at the back. */
+  plate: Pt;
 }
 
 export interface VehicleArt {
@@ -133,7 +135,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-22deg)', offset: 0.4 }, { transform: 'rotate(-22deg)', offset: 0.6 }, { transform: 'rotate(0deg)' }],
     partDuration: 1600,
     wheels: [{ x: 110 }, { x: 380 }],
-    anchors: { tire: { x: 380, y: WHEEL_Y }, panel: { x: 170, y: 140 }, ...CAB_ANCHORS },
+    anchors: { tire: { x: 380, y: WHEEL_Y }, panel: { x: 170, y: 140 }, plate: { x: 64, y: 168 }, ...CAB_ANCHORS },
   },
   excavator: {
     color: '#f07f2a',
@@ -158,7 +160,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-10deg)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(0deg)' }],
     partDuration: 1500,
     wheels: [76, 148, 220, 292, 364].map((x) => ({ x, r: 20, road: true })),
-    anchors: { door: { x: 268, y: 116 }, panel: { x: 150, y: 168 }, roof: { x: 268, y: 44 }, light: { x: 330, y: 168 } },
+    anchors: { door: { x: 268, y: 116 }, panel: { x: 150, y: 168 }, roof: { x: 268, y: 44 }, light: { x: 330, y: 168 }, plate: { x: 58, y: 174 } },
   },
   bulldozer: {
     color: '#f5c518',
@@ -182,7 +184,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: [{ transform: 'translateY(0px)' }, { transform: 'translateY(-34px)', offset: 0.4 }, { transform: 'translateY(-34px)', offset: 0.6 }, { transform: 'translateY(0px)' }],
     partDuration: 1400,
     wheels: [66, 136, 206, 276, 346].map((x) => ({ x, r: 20, road: true })),
-    anchors: { door: { x: 162, y: 118 }, panel: { x: 170, y: 172 }, roof: { x: 162, y: 40 }, light: { x: 300, y: 164 } },
+    anchors: { door: { x: 162, y: 118 }, panel: { x: 170, y: 172 }, roof: { x: 162, y: 40 }, light: { x: 300, y: 164 }, plate: { x: 92, y: 178 } },
   },
   cementMixer: {
     color: '#3d7fe0',
@@ -204,7 +206,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(-7deg)' }, { transform: 'rotate(7deg)' }, { transform: 'rotate(-7deg)' }, { transform: 'rotate(0deg)' }],
     partDuration: 1400,
     wheels: [{ x: 92 }, { x: 196 }, { x: 384 }],
-    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 176, y: 128 }, ...CAB_ANCHORS },
+    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 176, y: 128 }, plate: { x: 32, y: 214 }, ...CAB_ANCHORS },
   },
   fireTruck: {
     color: '#e4473b',
@@ -232,7 +234,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: PULSE,
     partDuration: 1500,
     wheels: [{ x: 92 }, { x: 172 }, { x: 384 }],
-    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 242, y: 149 }, door: CAB_ANCHORS.door, roof: { x: 180, y: 68 }, light: CAB_ANCHORS.light },
+    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 242, y: 149 }, door: CAB_ANCHORS.door, roof: { x: 180, y: 68 }, light: CAB_ANCHORS.light, plate: { x: 40, y: 168 } },
   },
   ambulance: {
     color: '#f4f4f4',
@@ -253,7 +255,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: PULSE,
     partDuration: 1500,
     wheels: [{ x: 92 }, { x: 384 }],
-    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 104, y: 106 }, door: CAB_ANCHORS.door, roof: { x: 170, y: 54 }, light: CAB_ANCHORS.light },
+    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 104, y: 106 }, door: CAB_ANCHORS.door, roof: { x: 170, y: 54 }, light: CAB_ANCHORS.light, plate: { x: 58, y: 120 } },
   },
   policeCar: {
     color: '#2b4fa0',
@@ -281,7 +283,7 @@ const SPECS: Record<VehicleId, Spec> = {
       { x: 110, r: 40 },
       { x: 370, r: 40 },
     ],
-    anchors: { tire: { x: 370, y: WHEEL_Y }, door: { x: 322, y: 196 }, panel: { x: 252, y: 186 }, roof: { x: 246, y: 62 }, light: { x: 446, y: 176 } },
+    anchors: { tire: { x: 370, y: WHEEL_Y }, door: { x: 322, y: 196 }, panel: { x: 252, y: 186 }, roof: { x: 246, y: 62 }, light: { x: 446, y: 176 }, plate: { x: 48, y: 192 } },
   },
   towTruck: {
     color: '#3fae5a',
@@ -305,7 +307,7 @@ const SPECS: Record<VehicleId, Spec> = {
     partMotion: [{ transform: 'rotate(0deg)' }, { transform: 'rotate(16deg)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(10deg)' }, { transform: 'rotate(0deg)' }],
     partDuration: 1500,
     wheels: [{ x: 100 }, { x: 384 }],
-    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 200, y: 184 }, ...CAB_ANCHORS },
+    anchors: { tire: { x: 384, y: WHEEL_Y }, panel: { x: 200, y: 184 }, plate: { x: 46, y: 190 }, ...CAB_ANCHORS },
   },
 };
 
@@ -350,4 +352,25 @@ export function vehicleArt(id: VehicleId): VehicleArt {
     anchors: spec.anchors,
     color: spec.color,
   };
+}
+
+/** A license plate with his initial (the only words a child ever sees). */
+export function addPlate(v: VehicleArt, letter: string): void {
+  const p = v.anchors.plate;
+  const plate = s('g', { class: 'no-hit' }, [
+    s('rect', { x: p.x - 21, y: p.y - 14, width: 42, height: 28, rx: 5, fill: '#fffbe8', stroke: INK, 'stroke-width': 4 }),
+  ]);
+  const text = s('text', {
+    x: p.x,
+    y: p.y + 1,
+    'text-anchor': 'middle',
+    'dominant-baseline': 'central',
+    'font-family': 'system-ui, sans-serif',
+    'font-weight': 800,
+    'font-size': 22,
+    fill: INK,
+  });
+  text.textContent = letter.toUpperCase();
+  plate.append(text);
+  v.body.append(plate);
 }

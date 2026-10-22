@@ -30,8 +30,8 @@ interface HubSpot {
 }
 
 const SPOTS: HubSpot[] = [
-  { lineId: 'hub.pegboard', art: pegboard, box: { x: 70, y: 95, w: 320, h: 235 } },
-  { lineId: 'hub.garage', art: garageDoor, box: { x: 987, y: 160, w: 260, h: 535 } },
+  { lineId: 'hub.pegboard', art: pegboard, box: { x: 70, y: 95, w: 320, h: 235 }, sceneId: 'toolwall' },
+  { lineId: 'hub.garage', art: garageDoor, box: { x: 987, y: 160, w: 260, h: 535 }, sceneId: 'garage' },
   { lineId: 'hub.lift', art: carLift, box: { x: 705, y: 410, w: 280, h: 280 }, front: true, sceneId: 'fixit' },
   { lineId: 'hub.toolbox', art: toolbox, box: { x: 100, y: 500, w: 265, h: 190 }, front: true, sceneId: 'fetch' },
 ];

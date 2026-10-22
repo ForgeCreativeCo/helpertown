@@ -7,8 +7,10 @@ import { Stage } from './core/stage';
 import { Store } from './core/storage';
 import { fetchScene } from './scenes/fetch';
 import { fixitScene } from './scenes/fixit';
+import { garageScene } from './scenes/garage';
 import { hubScene } from './scenes/hub';
 import { startScene } from './scenes/start';
+import { toolwallScene } from './scenes/toolwall';
 
 function boot(): void {
   const viewport = document.getElementById('viewport')!;
@@ -41,6 +43,8 @@ function boot(): void {
   scenes.register('hub', hubScene);
   scenes.register('fetch', fetchScene);
   scenes.register('fixit', fixitScene);
+  scenes.register('toolwall', toolwallScene);
+  scenes.register('garage', garageScene);
 
   // Dev only: `?gallery` shows every piece of art for checking.
   if (import.meta.env.DEV && new URLSearchParams(location.search).has('gallery')) {

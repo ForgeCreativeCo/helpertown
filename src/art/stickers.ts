@@ -6,7 +6,7 @@ import { toolMarkup } from './tools';
 /** Round sticker badges, drawn in a 100×100 box (center 50,50). */
 const O = `stroke="${INK}" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"`;
 
-function starPath(cx: number, cy: number, r: number): string {
+export function starPath(cx: number, cy: number, r: number): string {
   const pts: string[] = [];
   for (let i = 0; i < 10; i++) {
     const rad = i % 2 === 0 ? r : r * 0.48;

@@ -4,7 +4,7 @@ A tap-only learning game for a little helper who can't read yet. He's Pops' help
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** Milestone 2. Start screen, the workshop hub with Pops, **Fetch the Tool** and **Fix It** end to end, celebrations, toolbox stickers, adaptive difficulty and generated voices. Tool Wall, My Garage, the parent menu and the session wind-down come next.
+**Status:** Milestone 3. Start screen, the workshop hub with Pops, **Fetch the Tool**, **Fix It**, **Tool Wall** and **My Garage**, celebrations, toolbox stickers, adaptive difficulty and generated voices. The parent menu and the session wind-down come next.
 
 ## Running locally
 
@@ -65,7 +65,8 @@ src/
   content/              tools, vehicles, stickers and voice lines as typed data
   config/family.ts      child and grandpa names
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
-  scenes/               start, hub, fetch (Fetch the Tool), fixit (Fix It), gallery (dev only)
+  scenes/               start, hub, fetch (Fetch the Tool), fixit (Fix It), toolwall (Tool Wall),
+                        garage (My Garage), gallery (dev only)
 scripts/
   vite-asset-manifest.ts  lists the bundled voice files and photos at build time
   voices/                 voice generation (setup, engines, mp3 encoding)
@@ -109,6 +110,14 @@ Tap the car lift. Three vehicles per round roll onto the lift, each with a diffe
 3. The vehicle tests itself (a honk or a soft siren, and its bucket, blade, drum, beacon or hook moves), Pops says "You fixed the fire truck!", and it drives off to his garage. Fixing one he already has gives it a shiny star.
 
 Only problems for tools he has met in Fetch the Tool come up, so the repair bay grows with him. Tracked vehicles (excavator, bulldozer) never get tire problems, and vehicles he hasn't collected yet come first. The number of fixing taps (2–5) has its own adaptive track. Back in the workshop, the garage door honks hello.
+
+### Tool Wall
+
+Tap the pegboard. Pops holds up a tool ("Where does the hammer go?") and he taps its painted outline on the pegboard. A round hangs 4 tools (5 at the top level), starting with the ones he has met in Fetch the Tool. Each question shows the right outline plus 1–3 others still empty, set by difficulty. A wrong outline says whose spot it is ("That spot is for the saw!"), with the same errorless help as everywhere else. The right tool arcs over and clicks onto its pegs. When the wall is full: "All tidy! High five!", and a sticker for the toolbox.
+
+### My Garage
+
+Tap the garage door. There's a parking spot for each of the 8 vehicles. The ones he has fixed are parked with his initial on their license plates and a gold star for each extra time he fixed them. Empty spots show a faint dotted outline of the vehicle, never a lock. Tapping a vehicle says its name, plays its honk or siren and moves its part. The green house button takes him back to the workshop.
 
 ### Fetch the Tool
 

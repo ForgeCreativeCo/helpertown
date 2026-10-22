@@ -8,15 +8,13 @@ import { askQuestion } from '../core/question';
 import { nextTarget, pickChoices } from '../core/rounds';
 import type { Scene, SceneContext } from '../core/scenes';
 import { s, stageSvg } from '../core/svg';
-import { popsLife } from './common';
+import { nextPraise, popsLife } from './common';
 import { makePieces, showPieces, TOOL_ORIGIN, toolChoices, type Row, type ToolPiece } from './toolPieces';
 
 const QUESTIONS = 4;
 const TRACK = 'fetch.choices';
 /** Tools sit on the bench between these x positions. */
 const BENCH: Row = { left: 520, right: 1180, y: 468, scaleFew: 1.1, scaleMany: 0.95 };
-
-let praiseTurn = 0;
 
 /** Fetch the Tool: Pops asks for a tool, he finds it on the bench. */
 export function fetchScene(): Scene {
@@ -117,7 +115,7 @@ async function deliver(ctx: SceneContext, pops: Pops, pieces: ToolPiece[], targe
   pops.pose('thumbsUp');
   await ctx.speak(lineId('fetch.found', target));
   // Every other answer gets a short extra cheer, rotating through the list.
-  if (q % 2 === 1) await ctx.speak(PRAISE_LINES[praiseTurn++ % PRAISE_LINES.length]!);
+  if (q % 2 === 1) await ctx.speak(nextPraise());
 
   await finished(fadeTo(piece.el, 1, 0, 250));
   piece.el.remove();
