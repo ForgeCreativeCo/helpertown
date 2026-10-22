@@ -18,7 +18,8 @@ export type SfxName =
   | 'click'
   | 'honk'
   | 'siren'
-  | 'fanfare';
+  | 'fanfare'
+  | 'vroom';
 
 type Env = { attack?: number; hold?: number; release: number; peak: number };
 
@@ -164,6 +165,12 @@ const SOUNDS: Record<SfxName, (s: Sfx, ctx: AudioContext, out: AudioNode, t: num
     o.connect(g).connect(out);
     o.start(t);
     o.stop(t + 1.5);
+  },
+  // A soft toy-engine rumble for vehicles rolling in and out.
+  vroom: (s, ctx, out, t) => {
+    tone(ctx, out, t, 'triangle', 70, 120, { attack: 0.08, hold: 0.5, release: 0.35, peak: 0.28 });
+    tone(ctx, out, t, 'sine', 140, 220, { attack: 0.08, hold: 0.5, release: 0.35, peak: 0.12 });
+    noise(s, ctx, out, t, 'lowpass', 300, 500, { attack: 0.1, hold: 0.4, release: 0.3, peak: 0.12 });
   },
   fanfare: (_s, ctx, out, t) => {
     [0, 4, 7, 12].forEach((n, i) =>

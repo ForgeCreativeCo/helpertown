@@ -1,5 +1,6 @@
 import { family } from '../config/family';
 import type { StickerId } from '../content/stickers';
+import type { VehicleId } from '../content/vehicles';
 import { STARTER_TOOLS, type ToolId } from '../content/tools';
 import type { Track } from './difficulty';
 
@@ -46,6 +47,8 @@ export interface Progress {
   difficulty: Record<string, Track>;
   /** Earned toolbox stickers, oldest first. */
   stickers: StickerId[];
+  /** Fixed vehicles in his garage; fixing one again adds a star. */
+  garage: Partial<Record<VehicleId, { stars: number }>>;
 }
 
 export interface SaveData {
@@ -66,7 +69,7 @@ export function defaultSave(): SaveData {
       sfxVolume: 0.55,
       music: false,
     },
-    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [] },
+    progress: { playMs: {}, rounds: {}, tools: {}, toolsIntroduced: STARTER_TOOLS, difficulty: {}, stickers: [], garage: {} },
   };
 }
 

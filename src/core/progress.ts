@@ -1,5 +1,6 @@
 import { STICKERS, type StickerId } from '../content/stickers';
 import { STARTER_TOOLS, TOOLS, type ToolId } from '../content/tools';
+import type { VehicleId } from '../content/vehicles';
 import { newTrack, sanitizeTrack, type Track } from './difficulty';
 import type { ActivityId, Progress } from './storage';
 
@@ -56,6 +57,17 @@ export function awardSticker(p: Progress): StickerId {
   const id = nextSticker(p);
   p.stickers.push(id);
   return id;
+}
+
+/** Parks a fixed vehicle in the garage. Returns 'star' if it was already there. */
+export function recordFix(p: Progress, vehicle: VehicleId): 'new' | 'star' {
+  const spot = p.garage[vehicle];
+  if (spot) {
+    spot.stars++;
+    return 'star';
+  }
+  p.garage[vehicle] = { stars: 0 };
+  return 'new';
 }
 
 export function getTrack(p: Progress, key: string, min: number, max: number): Track {

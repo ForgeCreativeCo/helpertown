@@ -1,10 +1,12 @@
 import './styles.css';
+import { family } from './config/family';
 import { Audio } from './core/audio';
 import { Input } from './core/input';
 import { SceneManager, type App } from './core/scenes';
 import { Stage } from './core/stage';
 import { Store } from './core/storage';
 import { fetchScene } from './scenes/fetch';
+import { fixitScene } from './scenes/fixit';
 import { hubScene } from './scenes/hub';
 import { startScene } from './scenes/start';
 
@@ -19,7 +21,8 @@ function boot(): void {
 
   const { settings } = store;
   audio.setVolumes(settings.voiceVolume, settings.sfxVolume);
-  audio.setNames({ child: settings.childName, grandpa: settings.grandpaName });
+  // A save from before the name was set holds '', so fall back to the family config.
+  audio.setNames({ child: settings.childName || family.childName, grandpa: settings.grandpaName });
   void audio.refreshParentRecordings();
   input.onAnyTap(() => audio.wake());
 
@@ -37,6 +40,7 @@ function boot(): void {
   scenes.register('start', startScene);
   scenes.register('hub', hubScene);
   scenes.register('fetch', fetchScene);
+  scenes.register('fixit', fixitScene);
 
   // Dev only: `?gallery` shows every piece of art for checking.
   if (import.meta.env.DEV && new URLSearchParams(location.search).has('gallery')) {

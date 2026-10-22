@@ -4,7 +4,7 @@ A tap-only learning game for a little helper who can't read yet. He's Pops' help
 
 Built for Amazon Kids Fire tablets (Silk browser), works offline as a PWA. No ads, links, accounts, analytics or network requests after install.
 
-**Status:** Milestone 1 (first playable). Start screen, the workshop hub with Pops, **Fetch the Tool** end to end, celebrations, toolbox stickers, adaptive difficulty and generated voices. Fix It, Tool Wall, My Garage and the parent menu come next.
+**Status:** Milestone 2. Start screen, the workshop hub with Pops, **Fetch the Tool** and **Fix It** end to end, celebrations, toolbox stickers, adaptive difficulty and generated voices. Tool Wall, My Garage, the parent menu and the session wind-down come next.
 
 ## Running locally
 
@@ -36,7 +36,7 @@ Open the printed `Local` URL. `npm run dev` also listens on your network (`--hos
 - Make sure the PC and tablet are on the same Wi-Fi. If the tablet can't connect, allow Node through the Windows firewall for private networks.
 - `npm run dev:https` gives a `https://` address. Silk will warn about the self-signed certificate; continue past it. HTTPS is only needed to test microphone recording.
 - Add `?debug` to the URL to see a dot for every touch: **green** = counted as a tap, **grey** = ignored (palm, edge, repeat, or during a transition). Handy for checking palm rejection. It also logs how each voice line played (`file`, `speech` or `silent`) to the browser console.
-- In dev, `?gallery` shows every Pops pose, tool and sticker on one page.
+- In dev, `?gallery` shows every Pops pose, tool and sticker on one page, and `?gallery=vehicles` shows every vehicle, clean and with a problem.
 - Progress (tools learned, difficulty, stickers) is saved on the device. Until the parent menu lands (Milestone 4), reset it by clearing the site's data in the browser settings.
 
 ## How it's built
@@ -65,7 +65,7 @@ src/
   content/              tools, vehicles, stickers and voice lines as typed data
   config/family.ts      child and grandpa names
   art/                  original SVG art, drawn in code (Pops and his poses, tools, stickers, workshop)
-  scenes/               start, hub, fetch (Fetch the Tool), gallery (dev only)
+  scenes/               start, hub, fetch (Fetch the Tool), fixit (Fix It), gallery (dev only)
 scripts/
   vite-asset-manifest.ts  lists the bundled voice files and photos at build time
   voices/                 voice generation (setup, engines, mp3 encoding)
@@ -90,6 +90,26 @@ tests/                  Vitest
 - **Errorless questions** (`core/question.ts`): a wrong tap makes the item say its name and wobble, then the question repeats. The second wrong tap makes the right answer bounce and glow. From the third, Pops points at it and it's the only thing that responds. With no taps: the question repeats after ~7 s, the answer glows after ~14 s, and after ~60 s Pops asks "Are you still there?" and the game rests behind a big play button. Tapping Pops repeats the question at any time.
 - **Adaptive difficulty** (`core/difficulty.ts`): starts with 2 choices. 3 first-try right answers in a row add one (up to 4). 2 first-try misses in one round remove one (down to 2).
 
+### Fix It
+
+Tap the car lift. Three vehicles per round roll onto the lift, each with a different, clearly visible problem:
+
+| Problem | Tool | What fixing looks like |
+|---|---|---|
+| Flat tire | Air pump | The tire puffs up, puff by puff |
+| Wobbly wheel | Wrench | The nut on the floor spins back on and the wobble stops |
+| Dent | Hammer | The dent pops out, bang by bang |
+| Rattling door | Screwdriver | The screw twists in and the rattle stops |
+| Branch stuck on top | Saw | The branch gets sawn through and falls off |
+| Missing light | Drill | The new light gets drilled on |
+| Scratched paint | Paintbrush | Fresh paint sweeps over the scratch |
+
+1. Pops names the problem and the tool ("Uh oh! The tire is flat!", then "Pops needs the air pump!"), and he picks it from the tray (2–4 choices, errorless like Fetch the Tool). At the top difficulty level Pops names only the problem and asks "Which tool do we need?".
+2. The tool flies over, the problem spot glows, and he taps the vehicle 2–5 times while Pops counts ("One! Two! Three!"). Each tap fixes a bit more, and the next tap waits until Pops has said the number.
+3. The vehicle tests itself (a honk or a soft siren, and its bucket, blade, drum, beacon or hook moves), Pops says "You fixed the fire truck!", and it drives off to his garage. Fixing one he already has gives it a shiny star.
+
+Only problems for tools he has met in Fetch the Tool come up, so the repair bay grows with him. Tracked vehicles (excavator, bulldozer) never get tire problems, and vehicles he hasn't collected yet come first. The number of fixing taps (2–5) has its own adaptive track. Back in the workshop, the garage door honks hello.
+
 ### Fetch the Tool
 
 Pops asks for 4 tools per round, never the same one twice in a row. He starts with the hammer, wrench and screwdriver. When each tool in play has been found on the first try twice in a row, the next tool (saw, drill, air pump, paintbrush) is introduced: Pops shows it off and asks for it next. Each finished round earns a sticker that flies onto the toolbox in the workshop; tap a sticker to hear what it is. The toolbox shows the 4 newest.
@@ -104,7 +124,7 @@ Lines live in `src/content/lines.ts`. Each concrete line has a stable id that is
 
 ### Family names
 
-Set `childName` in `src/config/family.ts`. Both grandpa names (`Pops`, `Pappa`) get their own voice files. Lines without a matching named file play their name-free version instead.
+Set `childName` in `src/config/family.ts` (currently "Lincoln"). Both grandpa names (`Pops`, `Pappa`) get their own voice files. Lines without a matching named file play their name-free version instead.
 
 ## Adding bundled recordings
 

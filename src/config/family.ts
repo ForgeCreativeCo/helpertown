@@ -5,8 +5,8 @@
  * named voice file fall back to their name-free version.
  */
 export const family = {
-  /** Leave empty until it's set; name-free lines play instead. */
-  childName: '',
+  /** Empty means name-free lines play instead. */
+  childName: 'Lincoln',
   grandpaNames: ['Pops', 'Pappa'],
 } as const;
 

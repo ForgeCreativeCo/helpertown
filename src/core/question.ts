@@ -12,9 +12,11 @@ export interface Choice {
   art: SVGGElement;
   correct: boolean;
   /** Line the item says when tapped by mistake ("That's the saw!"). */
-  nameLine: string;
-  /** Halo position and size, in the target's own coordinates. */
+  nameLine?: string;
+  /** Hint position and size, in the target's own coordinates. */
   glow: { cx: number; cy: number; r: number };
+  /** Draw the hint as a ring on top instead of a halo behind (for spots on a vehicle). */
+  glowRing?: boolean;
   /** Stage point Pops points at. */
   center: { x: number; y: number };
 }
@@ -24,6 +26,10 @@ export interface QuestionOptions {
   choices: Choice[];
   pops: Pops;
   svg: SVGSVGElement;
+  /** Don't speak the prompt right away (it's only repeated if he goes idle). */
+  silentStart?: boolean;
+  /** Show the hint glow from the start ("tap the glowing spot"). */
+  glowFromStart?: boolean;
 }
 
 export interface QuestionResult {
@@ -53,7 +59,10 @@ export function askQuestion(ctx: SceneContext, q: QuestionOptions): Promise<Ques
   };
 
   const glow = () => {
-    if (!removeGlow) removeGlow = addGlow(ctx, correct.el, correct.glow.cx, correct.glow.cy, correct.glow.r);
+    if (!removeGlow) {
+      const { cx, cy, r } = correct.glow;
+      removeGlow = addGlow(ctx, correct.el, cx, cy, r, correct.glowRing ? 'ring' : 'halo');
+    }
     bounce(correct.art, 28);
   };
 
@@ -109,7 +118,7 @@ export function askQuestion(ctx: SceneContext, q: QuestionOptions): Promise<Ques
           wrong++;
           ctx.sfx('boing');
           wiggle(choice.art);
-          void ctx.speak(choice.nameLine, { replaceQueued: true });
+          if (choice.nameLine) void ctx.speak(choice.nameLine, { replaceQueued: true });
           const help = wrongTapResponse(wrong);
           if (help.glow) glow();
           if (help.point) q.pops.pose('pointing', correct.center);
@@ -136,7 +145,8 @@ export function askQuestion(ctx: SceneContext, q: QuestionOptions): Promise<Ques
       }),
     );
 
-    prompt();
+    if (q.glowFromStart) glow();
+    if (!q.silentStart) prompt();
     armIdle();
   });
 }

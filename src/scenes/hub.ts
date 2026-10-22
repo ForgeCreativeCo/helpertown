@@ -32,7 +32,7 @@ interface HubSpot {
 const SPOTS: HubSpot[] = [
   { lineId: 'hub.pegboard', art: pegboard, box: { x: 70, y: 95, w: 320, h: 235 } },
   { lineId: 'hub.garage', art: garageDoor, box: { x: 987, y: 160, w: 260, h: 535 } },
-  { lineId: 'hub.lift', art: carLift, box: { x: 705, y: 410, w: 280, h: 280 }, front: true },
+  { lineId: 'hub.lift', art: carLift, box: { x: 705, y: 410, w: 280, h: 280 }, front: true, sceneId: 'fixit' },
   { lineId: 'hub.toolbox', art: toolbox, box: { x: 100, y: 500, w: 265, h: 190 }, front: true, sceneId: 'fetch' },
 ];
 
@@ -48,11 +48,13 @@ export function hubScene(): Scene {
       // Pops stands behind the workbench; the lift and toolbox sit in front of it.
       const back = s('g');
       const front = s('g');
+      const groups = new Map<string, SVGGElement>();
       SPOTS.forEach((spot, i) => {
         const art = spot.art();
         art.setAttribute('class', 'tf-bottom');
         const g = hitGroup(art, spot.box, 24);
         (spot.front ? front : back).append(g);
+        groups.set(spot.lineId, g);
         ctx.keep(breathe(art, 0.025, 2400, i * 600));
         ctx.tap(g, () => {
           ctx.sfx('tap');
@@ -80,6 +82,18 @@ export function hubScene(): Scene {
 
       ambientLife(ctx, pops, mug.steam, r.notes, cat.body);
       showStickers(ctx, stickers, ctx.progress.stickers, ctx.params.newSticker as StickerId | undefined);
+      // Just back from Fix It: the garage door honks hello to the vehicles he fixed.
+      if (ctx.params.newVehicles) {
+        const door = groups.get('hub.garage')!;
+        ctx.after(500, () => {
+          bounce(door, 20);
+          ctx.sfx('honk');
+        });
+        ctx.after(1100, () => {
+          bounce(door, 14);
+          ctx.sfx('sparkle');
+        });
+      }
 
       let popsLine = 0;
       ctx.tap(pops.el, () => {

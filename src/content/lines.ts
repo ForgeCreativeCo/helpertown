@@ -1,5 +1,7 @@
+import { PROBLEMS } from './problems';
 import { STICKERS } from './stickers';
 import { TOOLS } from './tools';
+import { VEHICLES } from './vehicles';
 
 /**
  * Every spoken line in the game. Each template expands into one concrete line
@@ -10,9 +12,9 @@ import { TOOLS } from './tools';
  * have `plain`, a name-free version that plays whenever no matching named
  * voice file exists.
  */
-export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'praise' | 'round' | 'sticker' | 'idle';
+export type LineGroup = 'start' | 'hub' | 'pops' | 'fetch' | 'fixit' | 'praise' | 'round' | 'sticker' | 'idle';
 
-export type VarKind = 'tool' | 'sticker';
+export type VarKind = 'tool' | 'sticker' | 'vehicle' | 'problem' | 'count';
 
 export interface LineTemplate {
   id: string;
@@ -50,6 +52,18 @@ export const LINE_TEMPLATES: readonly LineTemplate[] = [
   { id: 'sticker.say', group: 'sticker', text: '{sticker}!', vars: ['sticker'] },
 
   { id: 'idle.stillThere', group: 'idle', text: 'Are you still there?' },
+
+  // Fix It. The tool request reuses fetch.ask ("Pops needs the pump!").
+  { id: 'fixit.intro', group: 'fixit', text: 'Time to fix things with {grandpa}!', plain: 'Time to fix things!' },
+  { id: 'fixit.problem', group: 'fixit', text: 'Uh oh! {problem}', vars: ['problem'] },
+  // Top difficulty: Pops names only the problem and he picks the tool himself.
+  { id: 'fixit.which', group: 'fixit', text: '{problem} Which tool do we need?', vars: ['problem'] },
+  { id: 'fixit.yourTurn', group: 'fixit', text: 'Your turn! Tap to fix it!' },
+  { id: 'fixit.keepGoing', group: 'fixit', text: 'Keep tapping!' },
+  { id: 'fixit.count', group: 'fixit', text: '{count}!', vars: ['count'] },
+  { id: 'fixit.fixed', group: 'fixit', text: 'You fixed the {vehicle}!', vars: ['vehicle'] },
+  { id: 'fixit.toGarage', group: 'fixit', text: "It's going to your garage!" },
+  { id: 'fixit.star', group: 'fixit', text: 'It gets a shiny star!' },
 ];
 
 export const PRAISE_LINES = ['praise.thanks', 'praise.justRight', 'praise.quick', 'praise.greatHelping'] as const;
@@ -58,6 +72,9 @@ export const PRAISE_LINES = ['praise.thanks', 'praise.justRight', 'praise.quick'
 const VAR_VALUES: Record<VarKind, readonly { id: string; word: string }[]> = {
   tool: TOOLS.map((t) => ({ id: t.id, word: t.name })),
   sticker: STICKERS.map((s) => ({ id: s.id, word: s.phrase })),
+  vehicle: VEHICLES.map((v) => ({ id: v.id, word: v.name })),
+  problem: PROBLEMS.map((p) => ({ id: p.id, word: p.sentence })),
+  count: ['One', 'Two', 'Three', 'Four', 'Five'].map((word, i) => ({ id: String(i + 1), word })),
 };
 
 export interface Line {

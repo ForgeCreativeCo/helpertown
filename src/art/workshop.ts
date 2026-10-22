@@ -194,6 +194,45 @@ export function garageDoor(): SVGGElement {
   `);
 }
 
+/**
+ * The repair bay for Fix It: a car lift in the middle, Pops' tool chest on the
+ * left (in front of him) and a tool tray along the bottom.
+ */
+export function repairBay(): { back: SVGGElement; front: SVGGElement } {
+  const back = fromMarkup(`
+    <rect x="-1280" y="-800" width="3840" height="1400" fill="${WALL}"/>
+    ${planks()}
+    <rect x="-1280" y="-800" width="3840" height="120" fill="#c4854c" opacity="0.6"/>
+    <!-- Big doorway the vehicles roll through -->
+    <rect x="-1280" y="150" width="1660" height="450" fill="#8a5a35"/>
+    <rect x="1180" y="150" width="1380" height="450" fill="#8a5a35"/>
+    <path d="M-1280 150 H2560" stroke="${INK}" stroke-width="10"/>
+    <!-- Hazard stripes on the bay header -->
+    <rect x="380" y="118" width="800" height="32" fill="#f2b33d" stroke="${INK}" stroke-width="8"/>
+    <path d="${Array.from({ length: 16 }, (_, i) => `M${396 + i * 50} 146 l24 -24 h18 l-24 24z`).join(' ')}" fill="${INK}"/>
+    <!-- Lift posts -->
+    <rect x="484" y="300" width="26" height="320" rx="6" fill="#f2b33d" stroke="${INK}" stroke-width="8"/>
+    <rect x="1010" y="300" width="26" height="320" rx="6" fill="#f2b33d" stroke="${INK}" stroke-width="8"/>
+    <rect x="474" y="290" width="46" height="24" rx="6" fill="${DARK_METAL}" stroke="${INK}" stroke-width="7"/>
+    <rect x="1000" y="290" width="46" height="24" rx="6" fill="${DARK_METAL}" stroke="${INK}" stroke-width="7"/>
+    ${floor()}
+    <rect x="490" y="598" width="540" height="22" rx="8" fill="#9aa3ad" stroke="${INK}" stroke-width="8"/>
+  `);
+  const front = fromMarkup(`
+    <!-- Pops' tool chest -->
+    <rect x="10" y="540" width="300" height="300" rx="16" fill="#e4473b" stroke="${INK}" stroke-width="10"/>
+    <rect x="30" y="566" width="260" height="56" rx="10" fill="#c9372d" stroke="${INK}" stroke-width="6"/>
+    <rect x="30" y="636" width="260" height="56" rx="10" fill="#c9372d" stroke="${INK}" stroke-width="6"/>
+    <rect x="130" y="586" width="60" height="14" rx="7" fill="#e6c48f" stroke="${INK}" stroke-width="5"/>
+    <rect x="130" y="656" width="60" height="14" rx="7" fill="#e6c48f" stroke="${INK}" stroke-width="5"/>
+    <rect x="0" y="526" width="320" height="26" rx="10" fill="#c9372d" stroke="${INK}" stroke-width="8"/>
+    <!-- Tool tray -->
+    <path d="M440 640 H1220 L1250 800 H410 Z" fill="#3d7fe0" stroke="${INK}" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M454 654 H1206 L1222 760 H438 Z" fill="#2f63b3"/>
+  `);
+  return { back, front };
+}
+
 /** The close-up bench for Fetch the Tool: wall behind, a long bench in front. */
 export function benchScene(): { back: SVGGElement; bench: SVGGElement } {
   const back = fromMarkup(`
